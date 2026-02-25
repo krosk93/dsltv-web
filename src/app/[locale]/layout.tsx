@@ -17,7 +17,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     };
     return {
         title: titles[locale] ?? titles['ca'],
-        description: 'Analytics dashboard for ADIF railway temporary speed limitations',
+        description: 'Anàlisi de les Limitacions Temporals de Velocitat de la Xarxa Ferroviària d\'Interès General',
     };
 }
 
