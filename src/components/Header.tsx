@@ -1,7 +1,6 @@
 'use client';
 import { useTranslations, useLocale } from 'next-intl';
-import { Link, usePathname } from '@/navigation';
-import { useRouter } from '@/navigation';
+import { Link, usePathname, useRouter } from '@/i18n/navigation';
 import { Train, BarChart2, Table2, Map } from 'lucide-react';
 import ThemeToggle from './ThemeToggle';
 import styles from './Header.module.css';
