@@ -1,0 +1,95 @@
+.filters {
+    padding: 20px 24px;
+    margin-bottom: 16px;
+}
+
+.filterRow {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    align-items: flex-end;
+}
+
+.filterGroup {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.filterLabel {
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: #6b7280;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+}
+
+.slider {
+    width: 160px;
+    accent-color: #6366f1;
+    cursor: pointer;
+    margin-top: 4px;
+}
+
+.checkLabel {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #9ca3af;
+    font-size: 0.875rem;
+    cursor: pointer;
+    padding-bottom: 2px;
+}
+
+.checkLabel input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+    accent-color: #6366f1;
+    cursor: pointer;
+}
+
+.tableWrap {
+    overflow: hidden;
+    margin-bottom: 16px;
+}
+
+.loadingBox {
+    display: flex;
+    justify-content: center;
+    padding: 80px;
+}
+
+.spinner {
+    width: 40px;
+    height: 40px;
+    border: 3px solid rgba(99, 102, 241, 0.2);
+    border-top-color: #6366f1;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.noResults {
+    padding: 60px;
+    text-align: center;
+    color: #6b7280;
+    font-size: 0.95rem;
+}
+
+.pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 4px;
+    padding: 16px 0 32px;
+}
+
+.pagination button:disabled {
+    opacity: 0.35;
+    cursor: not-allowed;
+}
