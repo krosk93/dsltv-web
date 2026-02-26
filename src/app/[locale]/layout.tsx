@@ -11,9 +11,9 @@ type Props = { children: React.ReactNode; params: Promise<{ locale: string }> };
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
     const { locale } = await params;
     const titles: Record<string, string> = {
-        ca: 'DSLTV – Limitacions Temporals de Velocitat',
-        es: 'DSLTV – Limitaciones Temporales de Velocidad',
-        en: 'DSLTV – Temporary Speed Limitations',
+        ca: 'LTV – Limitacions Temporals de Velocitat',
+        es: 'LTV – Limitaciones Temporales de Velocidad',
+        en: 'LTV – Temporary Speed Limitations',
     };
     return {
         title: titles[locale] ?? titles['ca'],

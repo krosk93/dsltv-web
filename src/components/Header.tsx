@@ -31,7 +31,7 @@ export default function Header() {
                         <Train size={22} strokeWidth={2} />
                     </div>
                     <div>
-                        <div className={styles.title}>DSLTV</div>
+                        <div className={styles.title}>LTV</div>
                         <div className={styles.subtitle}>{t('header.subtitle')}</div>
                     </div>
                 </div>
