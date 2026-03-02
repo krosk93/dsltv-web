@@ -15,6 +15,8 @@ export interface LTV {
   lastSeen: string;
   latitude?: number;
   longitude?: number;
+  state?: string;
+  province?: string;
 }
 
 export interface LTVData {

@@ -15,6 +15,7 @@ const PAGE_SIZE = 50;
 
 export default function TablePage() {
     const t = useTranslations();
+    const tStates = useTranslations('states');
     const [all, setAll] = useState<FlatLTV[]>([]);
     const [loading, setLoading] = useState(true);
 
@@ -23,6 +24,8 @@ export default function TablePage() {
     const [maxSpeed, setMaxSpeed] = useState(300);
     const [reasonSearch, setReasonSearch] = useState('');
     const [selectedTrack, setSelectedTrack] = useState('');
+    const [selectedState, setSelectedState] = useState('');
+    const [selectedProvince, setSelectedProvince] = useState('');
     const [csvOnly, setCsvOnly] = useState(false);
     const [activeOnly, setActiveOnly] = useState(true);
     const [page, setPage] = useState(0);
@@ -36,12 +39,30 @@ export default function TablePage() {
     const lines = useMemo(() => Array.from(new Set(all.map(l => l.line))).sort(), [all]);
     const tracks = useMemo(() => Array.from(new Set(all.map(l => l.track))).sort(), [all]);
 
+    // All states
+    const allStates = useMemo(() =>
+        Array.from(new Set(all.map(l => l.state).filter(Boolean) as string[])).sort(),
+        [all]
+    );
+
+    // Provinces available for the selected state (or all if no state)
+    const availableProvinces = useMemo(() => {
+        const src = selectedState ? all.filter(l => l.state === selectedState) : all;
+        return Array.from(new Set(src.map(l => l.province).filter(Boolean) as string[])).sort();
+    }, [all, selectedState]);
+
+    const translateState = (key: string) => {
+        try { return tStates(key as Parameters<typeof tStates>[0]); } catch { return key; }
+    };
+
     const filtered = useMemo(() => {
         let res = all;
         if (selectedLine) res = res.filter(l => l.line === selectedLine);
         if (maxSpeed < 300) res = res.filter(l => l.speedNum <= maxSpeed);
         if (reasonSearch) res = res.filter(l => l.reason.toLowerCase().includes(reasonSearch.toLowerCase()));
         if (selectedTrack) res = res.filter(l => l.track === selectedTrack);
+        if (selectedState) res = res.filter(l => l.state === selectedState);
+        if (selectedProvince) res = res.filter(l => l.province === selectedProvince);
         if (csvOnly) res = res.filter(l => l.csv);
         if (activeOnly) res = res.filter(l => l.active);
 
@@ -52,7 +73,7 @@ export default function TablePage() {
             return sortDir === 'asc' ? cmp : -cmp;
         });
         return res;
-    }, [all, selectedLine, maxSpeed, reasonSearch, selectedTrack, csvOnly, activeOnly, sortKey, sortDir]);
+    }, [all, selectedLine, maxSpeed, reasonSearch, selectedTrack, selectedState, selectedProvince, csvOnly, activeOnly, sortKey, sortDir]);
 
     const paginated = useMemo(() => filtered.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE), [filtered, page]);
     const totalPages = Math.ceil(filtered.length / PAGE_SIZE);
@@ -65,7 +86,15 @@ export default function TablePage() {
 
     const reset = () => {
         setSelectedLine(''); setMaxSpeed(300); setReasonSearch('');
-        setSelectedTrack(''); setCsvOnly(false); setActiveOnly(true); setPage(0);
+        setSelectedTrack(''); setSelectedState(''); setSelectedProvince('');
+        setCsvOnly(false); setActiveOnly(true); setPage(0);
+    };
+
+    // When state changes, reset province
+    const handleStateChange = (v: string) => {
+        setSelectedState(v);
+        setSelectedProvince('');
+        setPage(0);
     };
 
     const SortIcon = ({ k }: { k: SortKey }) =>
@@ -108,6 +137,24 @@ export default function TablePage() {
                             <select className="control" value={selectedTrack} onChange={e => { setSelectedTrack(e.target.value); setPage(0); }}>
                                 <option value="">{t('table.all_tracks')}</option>
                                 {tracks.map(tr => <option key={tr} value={tr}>{tr}</option>)}
+                            </select>
+                        </div>
+
+                        {/* State filter */}
+                        <div className={styles.filterGroup}>
+                            <label className={styles.filterLabel}>{t('dashboard.filter_state_label')}</label>
+                            <select className="control" value={selectedState} onChange={e => handleStateChange(e.target.value)}>
+                                <option value="">{t('dashboard.filter_state')}</option>
+                                {allStates.map(s => <option key={s} value={s}>{translateState(s)}</option>)}
+                            </select>
+                        </div>
+
+                        {/* Province filter — shown always, but populated based on selected state */}
+                        <div className={styles.filterGroup}>
+                            <label className={styles.filterLabel}>{t('table.filter_province')}</label>
+                            <select className="control" value={selectedProvince} onChange={e => { setSelectedProvince(e.target.value); setPage(0); }}>
+                                <option value="">{t('table.all_provinces')}</option>
+                                {availableProvinces.map(p => <option key={p} value={p}>{p}</option>)}
                             </select>
                         </div>
 
@@ -185,6 +232,12 @@ export default function TablePage() {
                                         <th style={thStyle('reason')} onClick={() => handleSort('reason')}>
                                             {t('table.col_reason')} <SortIcon k="reason" />
                                         </th>
+                                        <th style={thStyle('state')} onClick={() => handleSort('state')}>
+                                            {t('table.col_state')} <SortIcon k="state" />
+                                        </th>
+                                        <th style={thStyle('province')} onClick={() => handleSort('province')}>
+                                            {t('table.col_province')} <SortIcon k="province" />
+                                        </th>
                                         <th style={thStyle('csv')} onClick={() => handleSort('csv')}>
                                             {t('table.col_csv')} <SortIcon k="csv" />
                                         </th>
@@ -214,6 +267,12 @@ export default function TablePage() {
                                             <td><SpeedBadge speed={ltv.speedNum} /></td>
                                             <td style={{ maxWidth: 280, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}
                                                 title={ltv.reason}>{ltv.reason}</td>
+                                            <td style={{ fontSize: '0.78rem', whiteSpace: 'nowrap' }}>
+                                                {ltv.state ? translateState(ltv.state) : '—'}
+                                            </td>
+                                            <td style={{ fontSize: '0.78rem', whiteSpace: 'nowrap', color: '#9ca3af' }}>
+                                                {ltv.province ?? '—'}
+                                            </td>
                                             <td>
                                                 {ltv.csv
                                                     ? <span className="csv-yes">✓ CSV</span>

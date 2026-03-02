@@ -151,3 +151,64 @@ export function ChartLines({ data }: { data: Stats['lineData'] }) {
         </div>
     );
 }
+
+export function ChartStates({
+    stateData,
+    provinceData,
+    selectedState,
+}: {
+    stateData: Stats['stateDistribution'];
+    provinceData: Stats['provinceDistribution'];
+    selectedState: string | null;
+}) {
+    const t = useTranslations('dashboard');
+    const tStates = useTranslations('states');
+
+    const translateState = (key: string) => {
+        try { return tStates(key as Parameters<typeof tStates>[0]); } catch { return key; }
+    };
+
+    const title = selectedState ? t('chart_provinces') : t('chart_states');
+    const COLORS = ['#6366f1', '#8b5cf6', '#06b6d4', '#22c55e', '#f97316', '#eab308', '#ec4899', '#14b8a6', '#f43f5e', '#a855f7', '#3b82f6', '#84cc16', '#fb923c', '#e879f9', '#2dd4bf'];
+
+    if (selectedState) {
+        const barHeight = Math.max(220, provinceData.length * 30);
+        return (
+            <div style={CARD_STYLE} className="animate-fade-up-delay-1">
+                <ChartTitle>{title}</ChartTitle>
+                <ResponsiveContainer width="100%" height={barHeight}>
+                    <BarChart data={provinceData} layout="vertical" margin={{ left: 4, right: 24 }}>
+                        <XAxis type="number" tick={{ fill: '#6b7280', fontSize: 11 }} axisLine={false} tickLine={false} />
+                        <YAxis type="category" dataKey="province" tick={{ fill: '#9ca3af', fontSize: 10.5 }} axisLine={false} tickLine={false} width={140} />
+                        <Tooltip contentStyle={TOOLTIP_STYLE} formatter={(val) => [val, t('count')]} />
+                        <Bar dataKey="count" radius={[0, 4, 4, 0]} fillOpacity={0.85}>
+                            {provinceData.map((entry, i) => (
+                                <Cell key={entry.province} fill={COLORS[i % COLORS.length]} />
+                            ))}
+                        </Bar>
+                    </BarChart>
+                </ResponsiveContainer>
+            </div>
+        );
+    }
+
+    const displayData = stateData.map((d) => ({ ...d, displayName: translateState(d.state) }));
+    const barHeight = Math.max(240, displayData.length * 30);
+    return (
+        <div style={CARD_STYLE} className="animate-fade-up-delay-1">
+            <ChartTitle>{title}</ChartTitle>
+            <ResponsiveContainer width="100%" height={barHeight}>
+                <BarChart data={displayData} layout="vertical" margin={{ left: 4, right: 24 }}>
+                    <XAxis type="number" tick={{ fill: '#6b7280', fontSize: 11 }} axisLine={false} tickLine={false} />
+                    <YAxis type="category" dataKey="displayName" tick={{ fill: '#9ca3af', fontSize: 10.5 }} axisLine={false} tickLine={false} width={160} />
+                    <Tooltip contentStyle={TOOLTIP_STYLE} formatter={(val) => [val, t('count')]} />
+                    <Bar dataKey="count" radius={[0, 4, 4, 0]} fillOpacity={0.85}>
+                        {displayData.map((entry, i) => (
+                            <Cell key={entry.state} fill={COLORS[i % COLORS.length]} />
+                        ))}
+                    </Bar>
+                </BarChart>
+            </ResponsiveContainer>
+        </div>
+    );
+}

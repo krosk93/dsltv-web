@@ -42,6 +42,8 @@ export interface Stats {
     timelineData: { date: number; dateStr: string; count: number; resolved: number; active: number }[];
     trackDistribution: { track: string; count: number }[];
     lineData: { line: string; count: number; avgSpeed: number }[];
+    stateDistribution: { state: string; count: number }[];
+    provinceDistribution: { province: string; count: number }[];
 }
 
 export function computeStats(ltvs: FlatLTV[]): Stats {
@@ -128,10 +130,33 @@ export function computeStats(ltvs: FlatLTV[]): Stats {
         }))
         .sort((a, b) => b.count - a.count);
 
+    // State distribution
+    const stateMap: Record<string, number> = {};
+    for (const ltv of ltvs) {
+        if (ltv.state) {
+            stateMap[ltv.state] = (stateMap[ltv.state] || 0) + 1;
+        }
+    }
+    const stateDistribution = Object.entries(stateMap)
+        .map(([state, count]) => ({ state, count }))
+        .sort((a, b) => b.count - a.count);
+
+    // Province distribution
+    const provinceMap: Record<string, number> = {};
+    for (const ltv of ltvs) {
+        if (ltv.province) {
+            provinceMap[ltv.province] = (provinceMap[ltv.province] || 0) + 1;
+        }
+    }
+    const provinceDistribution = Object.entries(provinceMap)
+        .map(([province, count]) => ({ province, count }))
+        .sort((a, b) => b.count - a.count);
+
     return {
         total, activeCount, lines, avgSpeed, minSpeed, maxSpeed,
         criticalCount, csvCount, totalKm,
         speedDistribution, reasonDistribution,
         timelineData, trackDistribution, lineData,
+        stateDistribution, provinceDistribution,
     };
 }
