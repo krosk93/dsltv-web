@@ -2,7 +2,8 @@
 import { useTranslations } from 'next-intl';
 import type { Stats } from '@/lib/data';
 import { getSpeedColor } from '@/lib/types';
-import { AlertTriangle, Activity, TrendingUp, GitFork, Zap, Route } from 'lucide-react';
+import { formatDuration } from '@/lib/types';
+import { AlertTriangle, Activity, TrendingUp, GitFork, Zap, Route, Clock } from 'lucide-react';
 import styles from './KpiCards.module.css';
 
 interface Props { stats: Stats; }
@@ -52,12 +53,20 @@ export default function KpiCards({ stats }: Props) {
             delay: 4,
         },
         {
+            label: t('kpi_avg_delay'),
+            value: formatDuration(stats.avgDelay),
+            sub: '',
+            icon: <Clock size={22} />,
+            color: '#f97316',
+            delay: 5,
+        },
+        {
             label: t('kpi_total_km'),
             value: stats.totalKm.toFixed(1),
             sub: t('km'),
             icon: <GitFork size={22} />,
             color: '#8b5cf6',
-            delay: 5,
+            delay: 6,
         },
     ];
 

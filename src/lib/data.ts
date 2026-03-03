@@ -32,6 +32,7 @@ export interface Stats {
     activeCount: number;
     lines: number;
     avgSpeed: number;
+    avgDelay: number;
     minSpeed: number;
     maxSpeed: number;
     criticalCount: number;
@@ -57,6 +58,7 @@ export function computeStats(ltvs: FlatLTV[]): Stats {
     const criticalCount = ltvs.filter(l => getSpeedCategory(l.speedNum) === 'critical').length;
     const csvCount = ltvs.filter(l => l.csv).length;
     const totalKm = ltvs.reduce((a, l) => a + l.kmLength, 0);
+    const avgDelay = ltvs.length ? ltvs.reduce((a, l) => a + (l.delaySeconds || 0), 0) / ltvs.length : 0;
 
     // Speed buckets
     const speedBuckets: Record<number, number> = {};
@@ -153,7 +155,7 @@ export function computeStats(ltvs: FlatLTV[]): Stats {
         .sort((a, b) => b.count - a.count);
 
     return {
-        total, activeCount, lines, avgSpeed, minSpeed, maxSpeed,
+        total, activeCount, lines, avgSpeed, avgDelay, minSpeed, maxSpeed,
         criticalCount, csvCount, totalKm,
         speedDistribution, reasonDistribution,
         timelineData, trackDistribution, lineData,

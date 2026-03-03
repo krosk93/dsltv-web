@@ -17,6 +17,16 @@ export interface LTV {
   longitude?: number;
   state?: string;
   province?: string;
+  designSpeed?: number;
+  delaySeconds?: number;
+}
+
+export function formatDuration(seconds: number): string {
+  if (!seconds || seconds <= 0) return '0s';
+  const m = Math.floor(seconds / 60);
+  const s = Math.round(seconds % 60);
+  if (m > 0) return `${m}m ${s}s`;
+  return `${seconds.toFixed(1)}s`;
 }
 
 export interface LTVData {

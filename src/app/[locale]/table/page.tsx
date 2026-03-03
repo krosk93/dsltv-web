@@ -5,6 +5,7 @@ import Header from '@/components/Header';
 import SpeedBadge from '@/components/SpeedBadge';
 import { getAllLTVs } from '@/lib/data';
 import type { FlatLTV } from '@/lib/types';
+import { formatDuration } from '@/lib/types';
 import { RotateCcw, ChevronUp, ChevronDown, Search } from 'lucide-react';
 import styles from './table.module.css';
 
@@ -226,8 +227,14 @@ export default function TablePage() {
                                         <th style={thStyle('kmLength')} onClick={() => handleSort('kmLength')}>
                                             {t('table.col_length')} <SortIcon k="kmLength" />
                                         </th>
+                                        <th style={thStyle('designSpeed')} onClick={() => handleSort('designSpeed')}>
+                                            {t('table.col_design_speed')} <SortIcon k="designSpeed" />
+                                        </th>
                                         <th style={thStyle('speedNum')} onClick={() => handleSort('speedNum')}>
                                             {t('table.col_speed')} <SortIcon k="speedNum" />
+                                        </th>
+                                        <th style={thStyle('delaySeconds')} onClick={() => handleSort('delaySeconds')}>
+                                            {t('table.col_delay')} <SortIcon k="delaySeconds" />
                                         </th>
                                         <th style={thStyle('reason')} onClick={() => handleSort('reason')}>
                                             {t('table.col_reason')} <SortIcon k="reason" />
@@ -264,7 +271,9 @@ export default function TablePage() {
                                             </td>
                                             <td className="mono" style={{ fontSize: '0.8rem' }}>{ltv.startKm}</td>
                                             <td className="mono" style={{ fontSize: '0.8rem' }}>{ltv.kmLength.toFixed(3)} km</td>
+                                            <td className="mono" style={{ fontSize: '0.8rem', color: '#9ca3af' }}>{ltv.designSpeed ? `${ltv.designSpeed} km/h` : '—'}</td>
                                             <td><SpeedBadge speed={ltv.speedNum} /></td>
+                                            <td className="mono" style={{ fontSize: '0.8rem', color: '#f97316', fontWeight: 600 }}>{ltv.delaySeconds ? formatDuration(ltv.delaySeconds) : '—'}</td>
                                             <td style={{ maxWidth: 280, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}
                                                 title={ltv.reason}>{ltv.reason}</td>
                                             <td style={{ fontSize: '0.78rem', whiteSpace: 'nowrap' }}>

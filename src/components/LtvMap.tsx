@@ -2,7 +2,7 @@
 import { useEffect, useRef, useState, useMemo } from 'react';
 import { useTranslations } from 'next-intl';
 import type { FlatLTV } from '@/lib/types';
-import { getSpeedColor } from '@/lib/types';
+import { getSpeedColor, formatDuration } from '@/lib/types';
 import styles from './LtvMap.module.css';
 
 interface Props {
@@ -170,11 +170,12 @@ export default function LtvMap({ ltvs, maxSpeed, activeOnly }: Props) {
             <div style="font-size:0.8rem;margin-bottom:6px">${ltv.stations}</div>
             <div style="font-size:0.7rem;color:#6b7280">${t('popup_km')}</div>
             <div style="font-family:'JetBrains Mono',monospace;font-size:0.82rem;color:#818cf8;margin-bottom:6px">${ltv.startKm} → ${ltv.endKm}</div>
-            <div style="font-size:0.7rem;color:#6b7280">${t('popup_track')}: <strong style="color:#9ca3af">${ltv.track}</strong></div>
+            <div style="font-size:0.7rem;color:#6b7280">${t('popup_design_speed')}: <strong style="color:#9ca3af">${ltv.designSpeed ? `${ltv.designSpeed} km/h` : '—'}</strong></div>
             <div style="font-size:0.7rem;color:#6b7280;margin-top:4px;margin-bottom:8px">${t('popup_reason')}: <span style="color:#9ca3af">${ltv.reason}</span></div>
             <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
               <span style="background:${color}22;color:${color};border:1px solid ${color}55;padding:3px 10px;border-radius:999px;font-weight:700;font-size:0.82rem">${ltv.speedNum} km/h</span>
-              ${ltv.csv ? '<span style="background:rgba(34,197,94,0.15);color:#22c55e;border:1px solid rgba(34,197,94,0.35);padding:2px 8px;border-radius:999px;font-size:0.75rem;font-weight:600">CSV</span>' : ''}
+              <span style="background:rgba(249,115,22,0.1);color:#f97316;border:1px solid rgba(249,115,22,0.3);padding:3px 10px;border-radius:999px;font-weight:600;font-size:0.75rem" title="${t('popup_delay')}">+${ltv.delaySeconds ? formatDuration(ltv.delaySeconds) : '—'}</span>
+              ${ltv.csv ? '<span style="background:rgba(34,197,94,0.15);color:#22c55e;border:1px solid rgba(34,197,94,0.35);padding:3px 10px;border-radius:999px;font-size:0.75rem;font-weight:600">CSV</span>' : ''}
             </div>
             <div style="margin-top:10px;display:flex;justify-content:space-between;font-size:0.68rem;color:#6b7280;border-top:1px solid rgba(255,255,255,0.1);padding-top:8px">
               <div>${t('popup_date')}: <span style="color:#9ca3af">${ltv.firstAppearanceDate}</span></div>
