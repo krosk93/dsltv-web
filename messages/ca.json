@@ -108,7 +108,8 @@
         "popup_reason": "Motiu",
         "popup_date": "Primera aparició",
         "popup_csv": "CSV",
-        "popup_comment": "Comentari"
+        "popup_comment": "Comentari",
+        "popup_stations": "Tram"
     },
     "speed": {
         "critical": "Crític (≤30)",

@@ -100,7 +100,7 @@
         "layer_ormap": "OpenRailwayMap",
         "disclaimer": "Note: Map positions are approximate. Additional data is needed for exact geolocation.",
         "popup_line": "Line",
-        "popup_stations": "Kilometric points / Stations",
+        "popup_stations": "Area",
         "popup_km": "Start PK → End PK",
         "popup_design_speed": "D. Speed",
         "popup_delay": "Estimated delay",

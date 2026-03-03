@@ -101,7 +101,7 @@
         "layer_osm": "OpenStreetMap",
         "disclaimer": "Nota: Las posiciones en el mapa son aproximadas. Para la geolocalización exacta se necesitan datos adicionales.",
         "popup_line": "Línea",
-        "popup_stations": "Puntos kilométricos / Estaciones",
+        "popup_stations": "Tramo",
         "popup_km": "PK Inicio → PK Fin",
         "popup_design_speed": "V. Diseño",
         "popup_delay": "Retraso estimado",
