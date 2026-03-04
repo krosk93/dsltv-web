@@ -15,9 +15,37 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
         es: 'LTV – Limitaciones Temporales de Velocidad',
         en: 'LTV – Temporary Speed Limitations',
     };
+    const descriptions: Record<string, string> = {
+        ca: 'Anàlisi de les Limitacions Temporals de Velocitat de la Xarxa Ferroviària d\'Interès General (RFIG). Dades actualitzades i mapa interactiu.',
+        es: 'Análisis de las Limitaciones Temporales de Velocidad de la Red Ferroviaria de Interés General (RFIG). Datos actualizados y mapa interactivo.',
+        en: 'Analysis of Temporary Speed Limitations of the Spanish General Interest Railway Network. Updated data and interactive map.',
+    };
+
+    const title = titles[locale] ?? titles['ca'];
+    const description = descriptions[locale] ?? descriptions['ca'];
+
     return {
-        title: titles[locale] ?? titles['ca'],
-        description: 'Anàlisi de les Limitacions Temporals de Velocitat de la Xarxa Ferroviària d\'Interès General',
+        title,
+        description,
+        keywords: ['LTV', 'Ferrocarril', 'Seguretat Ferroviària', 'Velocitat', 'Espanya', 'RFIG'],
+        authors: [{ name: 'krosk' }],
+        openGraph: {
+            title,
+            description,
+            type: 'website',
+            locale: locale,
+            url: `https://limitacions.vatard.com/${locale}`,
+            siteName: 'LTV Dashboard',
+        },
+        twitter: {
+            card: 'summary_large_image',
+            title,
+            description,
+        },
+        robots: {
+            index: true,
+            follow: true,
+        },
     };
 }
 
