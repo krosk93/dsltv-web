@@ -4,6 +4,7 @@ import { getMessages } from 'next-intl/server';
 import { notFound } from 'next/navigation';
 import { routing } from '@/i18n/routing';
 import { ThemeProvider } from '@/components/ThemeProvider';
+import DisclaimerModal from '@/components/DisclaimerModal';
 import '../globals.css';
 
 type Props = { children: React.ReactNode; params: Promise<{ locale: string }> };
@@ -87,6 +88,7 @@ export default async function LocaleLayout({ children, params }: Props) {
                 ` }} />
                 <NextIntlClientProvider messages={messages}>
                     <ThemeProvider>
+                        <DisclaimerModal />
                         {children}
                     </ThemeProvider>
                 </NextIntlClientProvider>

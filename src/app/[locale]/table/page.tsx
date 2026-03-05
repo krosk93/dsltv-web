@@ -27,7 +27,6 @@ export default function TablePage() {
     const [selectedTrack, setSelectedTrack] = useState('');
     const [selectedState, setSelectedState] = useState('');
     const [selectedProvince, setSelectedProvince] = useState('');
-    const [csvOnly, setCsvOnly] = useState(false);
     const [activeOnly, setActiveOnly] = useState(true);
     const [page, setPage] = useState(0);
     const [sortKey, setSortKey] = useState<SortKey>('firstAppearanceDate');
@@ -64,7 +63,6 @@ export default function TablePage() {
         if (selectedTrack) res = res.filter(l => l.track === selectedTrack);
         if (selectedState) res = res.filter(l => l.state === selectedState);
         if (selectedProvince) res = res.filter(l => l.province === selectedProvince);
-        if (csvOnly) res = res.filter(l => l.csv);
         if (activeOnly) res = res.filter(l => l.active);
 
         res = [...res].sort((a, b) => {
@@ -74,7 +72,7 @@ export default function TablePage() {
             return sortDir === 'asc' ? cmp : -cmp;
         });
         return res;
-    }, [all, selectedLine, maxSpeed, reasonSearch, selectedTrack, selectedState, selectedProvince, csvOnly, activeOnly, sortKey, sortDir]);
+    }, [all, selectedLine, maxSpeed, reasonSearch, selectedTrack, selectedState, selectedProvince, activeOnly, sortKey, sortDir]);
 
     const paginated = useMemo(() => filtered.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE), [filtered, page]);
     const totalPages = Math.ceil(filtered.length / PAGE_SIZE);
@@ -88,7 +86,7 @@ export default function TablePage() {
     const reset = () => {
         setSelectedLine(''); setMaxSpeed(300); setReasonSearch('');
         setSelectedTrack(''); setSelectedState(''); setSelectedProvince('');
-        setCsvOnly(false); setActiveOnly(true); setPage(0);
+        setActiveOnly(true); setPage(0);
     };
 
     // When state changes, reset province
@@ -178,10 +176,6 @@ export default function TablePage() {
 
                         <div className={styles.filterGroup} style={{ gap: 16 }}>
                             <label className={`${styles.checkLabel}`}>
-                                <input type="checkbox" checked={csvOnly} onChange={e => { setCsvOnly(e.target.checked); setPage(0); }} />
-                                {t('table.filter_csv')}
-                            </label>
-                            <label className={`${styles.checkLabel}`}>
                                 <input type="checkbox" checked={activeOnly} onChange={e => { setActiveOnly(e.target.checked); setPage(0); }} />
                                 {t('table.filter_active')}
                             </label>
@@ -209,9 +203,6 @@ export default function TablePage() {
                             <table>
                                 <thead>
                                     <tr>
-                                        <th style={thStyle('code')} onClick={() => handleSort('code')}>
-                                            {t('table.col_code')} <SortIcon k="code" />
-                                        </th>
                                         <th style={thStyle('line')} onClick={() => handleSort('line')}>
                                             {t('table.col_line')} <SortIcon k="line" />
                                         </th>
@@ -245,9 +236,6 @@ export default function TablePage() {
                                         <th style={thStyle('province')} onClick={() => handleSort('province')}>
                                             {t('table.col_province')} <SortIcon k="province" />
                                         </th>
-                                        <th style={thStyle('csv')} onClick={() => handleSort('csv')}>
-                                            {t('table.col_csv')} <SortIcon k="csv" />
-                                        </th>
                                         <th style={thStyle('active')} onClick={() => handleSort('active')}>
                                             {t('table.col_active')} <SortIcon k="active" />
                                         </th>
@@ -259,7 +247,6 @@ export default function TablePage() {
                                 <tbody>
                                     {paginated.map((ltv) => (
                                         <tr key={`${ltv.code}-${ltv.line}`}>
-                                            <td className="mono" style={{ fontSize: '0.78rem', color: '#818cf8' }}>{ltv.code}</td>
                                             <td style={{ fontSize: '0.78rem', maxWidth: 180, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}
                                                 title={ltv.line}>{ltv.line.replace(/LÍNEA\s+/, 'L').split(' ')[0]}</td>
                                             <td style={{ maxWidth: 220, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}
@@ -281,11 +268,6 @@ export default function TablePage() {
                                             </td>
                                             <td style={{ fontSize: '0.78rem', whiteSpace: 'nowrap', color: '#9ca3af' }}>
                                                 {ltv.province ?? '—'}
-                                            </td>
-                                            <td>
-                                                {ltv.csv
-                                                    ? <span className="csv-yes">✓ CSV</span>
-                                                    : <span className="csv-no">—</span>}
                                             </td>
                                             <td>
                                                 {ltv.active

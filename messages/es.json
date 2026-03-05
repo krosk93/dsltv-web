@@ -122,5 +122,10 @@
         "ca": "Català",
         "es": "Español",
         "en": "English"
+    },
+    "disclaimer_modal": {
+        "title": "Atención: Plataforma Colaborativa",
+        "message": "Esta es una plataforma colaborativa y no se garantiza la validez de los datos. Cualquiera puede contribuir a través del bot de Telegram @dsltv_bot. Los archivos enviados no se conservan en el servidor.",
+        "button": "Entendido"
     }
 }
