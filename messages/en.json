@@ -122,9 +122,8 @@
         "es": "Español",
         "en": "English"
     },
-    "disclaimer_modal": {
-        "title": "Attention: Collaborative Platform",
-        "message": "This is a collaborative platform and data validity is not guaranteed. Anyone can contribute through the @dsltv_bot Telegram bot. Sent files are not stored on the server.",
-        "button": "Got it"
+    "closure": {
+        "title": "Closure of activity",
+        "content": "The Dignitat a les Vies platform regrets to announce that we are forced to cease operations on our data portal regarding the status of the conventional railway network. Despite not having received any official notification, access to the website has already been blocked, at least partially, and we believe that a judicial order has been issued against our domain based on the claim that information regarding Temporary Speed Restrictions (TSR) is \"sensitive.\"\n\nWe consider this decision an unacceptable act of paternalism that distances the Spanish State from European standards. While other European Union countries provide public portals where this data is published openly and transparently, authorities here have chosen opacity. The fact that this portal was created in less than a single working day proves that the Government's failure to provide such information is due to a clear lack of interest, not technical limitations. In contrast, the response from professionals was immediate: within the first 24 hours, several railway workers submitted ten separate data contributions, demonstrating that the sector's own staff has a genuine interest in making the state of the tracks public.\n\nUnderstanding the state of the infrastructure not only helps users comprehend chronic delays, but it is also the only way to verify, with hard data, that the tracks we travel on every day are safe. Railway safety cannot be a state secret; transparency is the greatest guarantee of public trust. Various media outlets have published similar maps and statistics using the same sources, and we remind the authorities that the freedom of information protects us all equally. We will not stop advocating for our right to know and to travel with dignity."
     }
 }

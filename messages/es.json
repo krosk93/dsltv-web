@@ -123,9 +123,8 @@
         "es": "Español",
         "en": "English"
     },
-    "disclaimer_modal": {
-        "title": "Atención: Plataforma Colaborativa",
-        "message": "Esta es una plataforma colaborativa y no se garantiza la validez de los datos. Cualquiera puede contribuir a través del bot de Telegram @dsltv_bot. Los archivos enviados no se conservan en el servidor.",
-        "button": "Entendido"
+    "closure": {
+        "title": "Cese de actividad",
+        "content": "Desde la plataforma Dignitat a las Vies, lamentamos informar que nos vemos obligados a cesar la actividad de nuestro portal de datos sobre el estado de la red ferroviaria convencional. A pesar de no haber recibido ninguna notificación oficial, el acceso a la web ya ha sido bloqueado, al menos parcialmente, y tenemos la creencia de que se ha instado una orden judicial contra nuestro dominio bajo el argumento de que la información sobre las Limitaciones Temporales de Velocidad (LTV) es \"sensible\".\n\nConsideramos que esta decisión es un acto de paternalismo inaceptable que aleja al Estado español de los estándares europeos. Mientras que otros países de la Unión Europea disponen de portales públicos donde se publican estos datos de manera abierta y transparente, aquí se opta por la opacidad. El hecho de que este portal se hubiera creado en menos de una jornada laboral demuestra que, si el Gobierno no ofrece esta información, es por una clara falta de interés y no por limitaciones técnicas. Por el contrario, la respuesta de los profesionales ha sido inmediata: en las primeras 24 horas, varios trabajadores ferroviarios enviaron una decena de aportaciones, lo que demuestra que el propio personal del sector tiene un interés real en que se conozca el estado de la red.\n\nConocer el estado de la infraestructura no solo ayuda al usuario a entender los retrasos crónicos, sino que es la única vía para constatar, con datos en la mano, que las vías por las que circulamos cada día son seguras. La seguridad ferroviaria no puede ser un secreto de estado; la transparencia es la mejor garantía de confianza pública. Diferentes medios de comunicación han publicado mapas y estadísticas similares empleando las mismas fuentes y recordamos que la libertad de información nos ampara a todos por igual. No dejaremos de reivindicar nuestro derecho a saber y a viajar con dignidad."
     }
 }

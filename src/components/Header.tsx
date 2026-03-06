@@ -17,11 +17,6 @@ export default function Header() {
         router.replace(pathname, { locale: newLocale });
     };
 
-    const navItems = [
-        { href: '/', label: t('nav.dashboard'), icon: <BarChart2 size={16} /> },
-        { href: '/table', label: t('nav.table'), icon: <Table2 size={16} /> },
-        { href: '/map', label: t('nav.map'), icon: <Map size={16} /> },
-    ];
 
     return (
         <header className={styles.header}>
@@ -37,16 +32,7 @@ export default function Header() {
                 </div>
 
                 <nav className={styles.nav}>
-                    {navItems.map(({ href, label, icon }) => (
-                        <Link
-                            key={href}
-                            href={href}
-                            className={`${styles.navLink} ${pathname === href ? styles.active : ''}`}
-                        >
-                            {icon}
-                            {label}
-                        </Link>
-                    ))}
+                    {/* Navigation hidden */}
                 </nav>
 
                 <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
