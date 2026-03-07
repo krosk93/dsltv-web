@@ -1,15 +1,18 @@
 'use client';
+import { useRef } from 'react';
 import { useTranslations } from 'next-intl';
 import type { Stats } from '@/lib/data';
 import { getSpeedColor } from '@/lib/types';
 import { formatDuration } from '@/lib/types';
 import { AlertTriangle, Activity, TrendingUp, GitFork, Zap, Route, Clock } from 'lucide-react';
+import ExportButton from './ExportButton';
 import styles from './KpiCards.module.css';
 
 interface Props { stats: Stats; }
 
 export default function KpiCards({ stats }: Props) {
     const t = useTranslations('dashboard');
+    const containerRef = useRef<HTMLDivElement>(null);
 
     const cards = [
         {
@@ -71,25 +74,32 @@ export default function KpiCards({ stats }: Props) {
     ];
 
     return (
-        <div className={styles.grid}>
-            {cards.map((card) => (
-                <div
-                    key={card.label}
-                    className={`${styles.card} glass-card animate-fade-up`}
-                    style={{ animationDelay: `${card.delay * 0.08}s` }}
-                >
-                    <div className={styles.iconWrap} style={{ background: `${card.color}20`, color: card.color }}>
-                        {card.icon}
-                    </div>
-                    <div className={styles.body}>
-                        <div className={styles.label}>{card.label}</div>
-                        <div className={styles.value} style={{ color: card.color }}>
-                            {card.value}
-                            {card.sub && <span className={styles.sub}> {card.sub}</span>}
+        <div style={{ position: 'relative' }}>
+            <ExportButton
+                elementRef={containerRef}
+                filename="kpis"
+                style={{ position: 'absolute', top: -45, right: 0 }}
+            />
+            <div ref={containerRef} className={styles.grid} style={{ background: 'var(--bg)', padding: '4px' }}>
+                {cards.map((card) => (
+                    <div
+                        key={card.label}
+                        className={`${styles.card} glass-card animate-fade-up`}
+                        style={{ animationDelay: `${card.delay * 0.08}s` }}
+                    >
+                        <div className={styles.iconWrap} style={{ background: `${card.color}20`, color: card.color }}>
+                            {card.icon}
+                        </div>
+                        <div className={styles.body}>
+                            <div className={styles.label}>{card.label}</div>
+                            <div className={styles.value} style={{ color: card.color }}>
+                                {card.value}
+                                {card.sub && <span className={styles.sub}> {card.sub}</span>}
+                            </div>
                         </div>
                     </div>
-                </div>
-            ))}
+                ))}
+            </div>
         </div>
     );
 }

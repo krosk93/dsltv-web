@@ -3,6 +3,7 @@ import { useEffect, useRef, useState, useMemo } from 'react';
 import { useTranslations } from 'next-intl';
 import type { FlatLTV } from '@/lib/types';
 import { getSpeedColor, formatDuration } from '@/lib/types';
+import ExportButton from './ExportButton';
 import styles from './LtvMap.module.css';
 
 interface Props {
@@ -64,6 +65,7 @@ export default function LtvMap({ ltvs, maxSpeed, activeOnly }: Props) {
     const t = useTranslations('map');
     const tSpeed = useTranslations('speed');
     const containerRef = useRef<HTMLDivElement>(null);
+    const wrapperRef = useRef<HTMLDivElement>(null);
     const mapRef = useRef<import('leaflet').Map | null>(null);
     const layerGroupRef = useRef<import('leaflet').LayerGroup | null>(null);
     const [mapReady, setMapReady] = useState(false);
@@ -94,12 +96,18 @@ export default function LtvMap({ ltvs, maxSpeed, activeOnly }: Props) {
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
                 attribution: '© OpenStreetMap contributors',
                 maxZoom: 19,
+                crossOrigin: 'anonymous', // For html-to-image
             }).addTo(map);
 
             // OpenRailwayMap infrastructure layer
             const orm = L.tileLayer(
                 'https://{s}.tiles.openrailwaymap.org/standard/{z}/{x}/{y}.png',
-                { attribution: '© OpenRailwayMap', maxZoom: 19, opacity: 0.9 }
+                {
+                    attribution: '© OpenRailwayMap',
+                    maxZoom: 19,
+                    opacity: 0.9,
+                    crossOrigin: 'anonymous', // For html-to-image
+                }
             );
             orm.addTo(map);
             ormLayerRef.current = orm;
@@ -201,11 +209,17 @@ export default function LtvMap({ ltvs, maxSpeed, activeOnly }: Props) {
     ];
 
     return (
-        <div className={styles.wrapper}>
+        <div className={styles.wrapper} ref={wrapperRef}>
             <div ref={containerRef} className={styles.mapContainer} />
 
             {/* Controls */}
             <div className={styles.controls}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4, gap: 12 }}>
+                    <span style={{ fontSize: '0.65rem', fontWeight: 700, color: '#6b7280', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                        {t('layers') ?? 'Layers'}
+                    </span>
+                    <ExportButton elementRef={wrapperRef} filename="map_export" style={{ background: 'rgba(255,255,255,0.08)' }} />
+                </div>
                 <label className={styles.toggleLabel}>
                     <input type="checkbox" checked={useORM} onChange={e => setUseORM(e.target.checked)} />
                     <span>{t('layer_ormap')}</span>

@@ -1,4 +1,5 @@
 'use client';
+import { useRef } from 'react';
 import { useTranslations } from 'next-intl';
 import {
     BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer,
@@ -6,6 +7,7 @@ import {
 } from 'recharts';
 import { getSpeedColor } from '@/lib/types';
 import type { Stats } from '@/lib/data';
+import ExportButton from './ExportButton';
 
 const CARD_STYLE: React.CSSProperties = {
     background: 'var(--bg-card)',
@@ -30,11 +32,33 @@ function ChartTitle({ children }: { children: React.ReactNode }) {
     );
 }
 
+function ChartWrapper({
+    children,
+    title,
+    filename,
+    className
+}: {
+    children: React.ReactNode;
+    title: string;
+    filename: string;
+    className?: string;
+}) {
+    const ref = useRef<HTMLDivElement>(null);
+    return (
+        <div style={{ ...CARD_STYLE, position: 'relative' }} className={className} ref={ref}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                <ChartTitle>{title}</ChartTitle>
+                <ExportButton elementRef={ref} filename={filename} style={{ marginTop: -4, marginRight: -8 }} />
+            </div>
+            {children}
+        </div>
+    );
+}
+
 export function ChartSpeedDist({ data }: { data: Stats['speedDistribution'] }) {
     const t = useTranslations('dashboard');
     return (
-        <div style={CARD_STYLE} className="animate-fade-up-delay-1">
-            <ChartTitle>{t('chart_speed')}</ChartTitle>
+        <ChartWrapper title={t('chart_speed')} filename="speed_distribution" className="animate-fade-up-delay-1">
             <ResponsiveContainer width="100%" height={220}>
                 <BarChart data={data} margin={{ left: -10, right: 0 }}>
                     <XAxis
@@ -56,7 +80,7 @@ export function ChartSpeedDist({ data }: { data: Stats['speedDistribution'] }) {
                     </Bar>
                 </BarChart>
             </ResponsiveContainer>
-        </div>
+        </ChartWrapper>
     );
 }
 
@@ -64,8 +88,7 @@ export function ChartReasons({ data }: { data: Stats['reasonDistribution'] }) {
     const t = useTranslations('dashboard');
     const truncate = (s: string) => s.length > 38 ? s.slice(0, 36) + '…' : s;
     return (
-        <div style={CARD_STYLE} className="animate-fade-up-delay-2">
-            <ChartTitle>{t('chart_reasons')}</ChartTitle>
+        <ChartWrapper title={t('chart_reasons')} filename="reasons_distribution" className="animate-fade-up-delay-2">
             <ResponsiveContainer width="100%" height={320}>
                 <BarChart data={data} layout="vertical" margin={{ left: 4, right: 16 }}>
                     <XAxis type="number" tick={{ fill: '#6b7280', fontSize: 11 }} axisLine={false} tickLine={false} />
@@ -74,15 +97,14 @@ export function ChartReasons({ data }: { data: Stats['reasonDistribution'] }) {
                     <Bar dataKey="count" fill="#6366f1" radius={[0, 4, 4, 0]} fillOpacity={0.85} />
                 </BarChart>
             </ResponsiveContainer>
-        </div>
+        </ChartWrapper>
     );
 }
 
 export function ChartTimeline({ data }: { data: Stats['timelineData'] }) {
     const t = useTranslations('dashboard');
     return (
-        <div style={CARD_STYLE} className="animate-fade-up-delay-3">
-            <ChartTitle>{t('chart_timeline')}</ChartTitle>
+        <ChartWrapper title={t('chart_timeline')} filename="timeline" className="animate-fade-up-delay-3">
             <ResponsiveContainer width="100%" height={220}>
                 <AreaChart data={data} margin={{ left: -10, right: 0 }}>
                     <CartesianGrid stroke="rgba(255,255,255,0.04)" vertical={false} />
@@ -105,7 +127,7 @@ export function ChartTimeline({ data }: { data: Stats['timelineData'] }) {
                     <Area type="monotone" dataKey="count" stroke="#06b6d4" strokeWidth={1.5} fill="none" dot={false} name={t('chart_legend_new')} />
                 </AreaChart>
             </ResponsiveContainer>
-        </div>
+        </ChartWrapper>
     );
 }
 
@@ -113,8 +135,7 @@ export function ChartTracks({ data }: { data: Stats['trackDistribution'] }) {
     const t = useTranslations('dashboard');
     const COLORS = ['#6366f1', '#06b6d4', '#22c55e', '#f97316', '#eab308', '#8b5cf6', '#ec4899'];
     return (
-        <div style={CARD_STYLE} className="animate-fade-up-delay-1">
-            <ChartTitle>{t('chart_tracks')}</ChartTitle>
+        <ChartWrapper title={t('chart_tracks')} filename="tracks_distribution" className="animate-fade-up-delay-1">
             <ResponsiveContainer width="100%" height={220}>
                 <PieChart>
                     <Pie data={data} dataKey="count" nameKey="track" cx="50%" cy="50%" outerRadius={80} innerRadius={40} paddingAngle={3}>
@@ -126,7 +147,7 @@ export function ChartTracks({ data }: { data: Stats['trackDistribution'] }) {
                     <Tooltip contentStyle={TOOLTIP_STYLE} />
                 </PieChart>
             </ResponsiveContainer>
-        </div>
+        </ChartWrapper>
     );
 }
 
@@ -138,8 +159,7 @@ export function ChartLines({ data }: { data: Stats['lineData'] }) {
         return match ? `L${match[1]}` : s.slice(0, 8);
     };
     return (
-        <div style={CARD_STYLE} className="animate-fade-up-delay-2">
-            <ChartTitle>{t('chart_lines')}</ChartTitle>
+        <ChartWrapper title={t('chart_lines')} filename="lines_distribution" className="animate-fade-up-delay-2">
             <ResponsiveContainer width="100%" height={220}>
                 <BarChart data={top} margin={{ left: -10, right: 0 }}>
                     <XAxis dataKey="line" tick={{ fill: '#6b7280', fontSize: 10 }} axisLine={false} tickLine={false} tickFormatter={truncate} />
@@ -148,7 +168,7 @@ export function ChartLines({ data }: { data: Stats['lineData'] }) {
                     <Bar dataKey="count" fill="#06b6d4" radius={[4, 4, 0, 0]} fillOpacity={0.85} name={t('count')} />
                 </BarChart>
             </ResponsiveContainer>
-        </div>
+        </ChartWrapper>
     );
 }
 
@@ -174,8 +194,7 @@ export function ChartStates({
     if (selectedState) {
         const barHeight = Math.max(220, provinceData.length * 30);
         return (
-            <div style={CARD_STYLE} className="animate-fade-up-delay-1">
-                <ChartTitle>{title}</ChartTitle>
+            <ChartWrapper title={title} filename={`provinces_${selectedState}`} className="animate-fade-up-delay-1">
                 <ResponsiveContainer width="100%" height={barHeight}>
                     <BarChart data={provinceData} layout="vertical" margin={{ left: 4, right: 24 }}>
                         <XAxis type="number" tick={{ fill: '#6b7280', fontSize: 11 }} axisLine={false} tickLine={false} />
@@ -188,15 +207,14 @@ export function ChartStates({
                         </Bar>
                     </BarChart>
                 </ResponsiveContainer>
-            </div>
+            </ChartWrapper>
         );
     }
 
     const displayData = stateData.map((d) => ({ ...d, displayName: translateState(d.state) }));
     const barHeight = Math.max(240, displayData.length * 30);
     return (
-        <div style={CARD_STYLE} className="animate-fade-up-delay-1">
-            <ChartTitle>{title}</ChartTitle>
+        <ChartWrapper title={title} filename="states_distribution" className="animate-fade-up-delay-1">
             <ResponsiveContainer width="100%" height={barHeight}>
                 <BarChart data={displayData} layout="vertical" margin={{ left: 4, right: 24 }}>
                     <XAxis type="number" tick={{ fill: '#6b7280', fontSize: 11 }} axisLine={false} tickLine={false} />
@@ -209,6 +227,6 @@ export function ChartStates({
                     </Bar>
                 </BarChart>
             </ResponsiveContainer>
-        </div>
+        </ChartWrapper>
     );
 }

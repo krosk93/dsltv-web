@@ -14,20 +14,33 @@ const LtvMap = dynamic(() => import('@/components/LtvMap'), { ssr: false });
 export default function MapPage() {
     const t = useTranslations('map');
     const tSpeed = useTranslations('speed');
+    const tStates = useTranslations('states');
     const [all, setAll] = useState<FlatLTV[]>([]);
     const [loading, setLoading] = useState(true);
     const [maxSpeed, setMaxSpeed] = useState(300);
     const [activeOnly, setActiveOnly] = useState(true);
+    const [selectedState, setSelectedState] = useState<string | null>(null);
 
     useEffect(() => {
         getAllLTVs().then((data) => { setAll(data); setLoading(false); });
     }, []);
 
+    // All distinct states from the full dataset
+    const allStates = useMemo(() => {
+        const stateSet = new Set(all.map(l => l.state).filter(Boolean) as string[]);
+        return Array.from(stateSet).sort();
+    }, [all]);
+
+    const translateState = (key: string) => {
+        try { return tStates(key as Parameters<typeof tStates>[0]); } catch { return key; }
+    };
+
     const filtered = useMemo(() => {
         let res = all.filter(l => l.speedNum <= maxSpeed);
         if (activeOnly) res = res.filter(l => l.active);
+        if (selectedState) res = res.filter(l => l.state === selectedState);
         return res;
-    }, [all, maxSpeed, activeOnly]);
+    }, [all, maxSpeed, activeOnly, selectedState]);
 
     const speedBuckets = [
         { label: tSpeed('critical'), max: 30, color: '#ef4444' },
@@ -50,27 +63,55 @@ export default function MapPage() {
                     <p style={{ color: '#6b7280', fontSize: '0.9rem' }}>{t('subtitle')}</p>
                 </div>
 
-                {/* Speed filter row */}
+                {/* Filter row */}
                 <div className={`glass-card ${styles.filterBar} animate-fade-up-delay-1`}>
-                    <span style={{ color: '#6b7280', fontSize: '0.82rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-                        {t('filter_speed')}
-                    </span>
-                    <div className={styles.buckets}>
-                        {speedBuckets.map(b => (
-                            <button
-                                key={b.max}
-                                className={styles.bucketBtn}
-                                style={{
-                                    background: maxSpeed === b.max ? `${b.color}22` : undefined,
-                                    borderColor: maxSpeed === b.max ? `${b.color}66` : undefined,
-                                    color: maxSpeed === b.max ? b.color : '#6b7280',
-                                }}
-                                onClick={() => setMaxSpeed(maxSpeed === b.max ? 300 : b.max)}
-                            >
-                                <span className={styles.dot} style={{ background: b.color }} />
-                                {b.label}
-                            </button>
-                        ))}
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, paddingRight: 16, borderRight: '1px solid rgba(255,255,255,0.1)' }}>
+                        <label htmlFor="state-filter" style={{ fontSize: '0.82rem', fontWeight: 600, color: '#6b7280', whiteSpace: 'nowrap', textTransform: 'uppercase' }}>
+                            {t('filter_state_label')}:
+                        </label>
+                        <select
+                            id="state-filter"
+                            value={selectedState ?? ''}
+                            onChange={e => setSelectedState(e.target.value || null)}
+                            style={{
+                                background: 'transparent',
+                                border: 'none',
+                                color: 'var(--text)',
+                                fontSize: '0.85rem',
+                                fontWeight: 700,
+                                cursor: 'pointer',
+                                outline: 'none',
+                                accentColor: '#6366f1',
+                            }}
+                        >
+                            <option value="">{t('filter_state')}</option>
+                            {allStates.map(s => (
+                                <option key={s} value={s}>{translateState(s)}</option>
+                            ))}
+                        </select>
+                    </div>
+
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 12, paddingLeft: 16 }}>
+                        <span style={{ color: '#6b7280', fontSize: '0.82rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                            {t('filter_speed')}
+                        </span>
+                        <div className={styles.buckets}>
+                            {speedBuckets.map(b => (
+                                <button
+                                    key={b.max}
+                                    className={styles.bucketBtn}
+                                    style={{
+                                        background: maxSpeed === b.max ? `${b.color}22` : undefined,
+                                        borderColor: maxSpeed === b.max ? `${b.color}66` : undefined,
+                                        color: maxSpeed === b.max ? b.color : '#6b7280',
+                                    }}
+                                    onClick={() => setMaxSpeed(maxSpeed === b.max ? 300 : b.max)}
+                                >
+                                    <span className={styles.dot} style={{ background: b.color }} />
+                                    {b.label}
+                                </button>
+                            ))}
+                        </div>
                     </div>
 
                     <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginLeft: 16, borderLeft: '1px solid rgba(255,255,255,0.1)', paddingLeft: 16 }}>
@@ -105,7 +146,7 @@ export default function MapPage() {
                             <div className={styles.spinner} />
                         </div>
                     ) : (
-                        <LtvMap ltvs={all} maxSpeed={maxSpeed} activeOnly={activeOnly} />
+                        <LtvMap ltvs={filtered} maxSpeed={maxSpeed} activeOnly={activeOnly} />
                     )}
                 </div>
             </main>
