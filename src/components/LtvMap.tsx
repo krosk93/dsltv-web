@@ -71,6 +71,7 @@ export default function LtvMap({ ltvs, maxSpeed, activeOnly }: Props) {
     const [mapReady, setMapReady] = useState(false);
     const [visibleCount, setVisibleCount] = useState(0);
     const [useORM, setUseORM] = useState(true);
+    const [showPoints, setShowPoints] = useState(true);
     const ormLayerRef = useRef<import('leaflet').TileLayer | null>(null);
 
     const filtered = useMemo(() => {
@@ -158,22 +159,13 @@ export default function LtvMap({ ltvs, maxSpeed, activeOnly }: Props) {
                 const color = getSpeedColor(ltv.speedNum);
                 const radius = Math.max(5, Math.min(14, (200 - ltv.speedNum) / 14));
 
-                const circle = L.circleMarker(pos, {
-                    radius,
-                    fillColor: color,
-                    fillOpacity: 0.82,
-                    color: ltv.active ? '#fff' : '#ffffff44',
-                    weight: ltv.active ? 2 : 1,
-                });
-
-                const lineName = ltv.line;
-                circle.bindPopup(`
+                const popupContent = `
           <div style="min-width:240px;font-family:'Inter',sans-serif">
             <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:2px">
               <div style="font-size:0.7rem;color:#6b7280">${t('popup_line')}</div>
               ${ltv.active ? '<span style="background:#3b82f6;color:white;padding:1px 6px;border-radius:4px;font-size:0.6rem;font-weight:800;text-transform:uppercase;letter-spacing:0.05em">ACTIVE</span>' : ''}
             </div>
-            <div style="font-size:0.82rem;color:#e2e8f0;margin-bottom:8px;font-weight:600;line-height:1.3">${lineName}</div>
+            <div style="font-size:0.82rem;color:#e2e8f0;margin-bottom:8px;font-weight:600;line-height:1.3">${ltv.line}</div>
             <div style="font-size:0.7rem;color:#6b7280">${t('popup_stations') ?? 'Stations'}</div>
             <div style="font-size:0.8rem;margin-bottom:6px">${ltv.stations}</div>
             <div style="font-size:0.7rem;color:#6b7280">${t('popup_km')}</div>
@@ -191,14 +183,37 @@ export default function LtvMap({ ltvs, maxSpeed, activeOnly }: Props) {
             </div>
             ${ltv.comment ? `<div style="margin-top:5px;font-size:0.72rem;color:#9ca3af;font-style:italic">${ltv.comment}</div>` : ''}
           </div>
-        `);
+        `;
 
-                layerGroupRef.current!.addLayer(circle);
+                const circle = L.circleMarker(pos, {
+                    radius,
+                    fillColor: color,
+                    fillOpacity: 0.82,
+                    color: ltv.active ? '#fff' : '#ffffff44',
+                    weight: ltv.active ? 2 : 1,
+                });
+
+                circle.bindPopup(popupContent);
+                if (showPoints) {
+                    layerGroupRef.current!.addLayer(circle);
+                }
+
+                if (ltv.path && ltv.path.length > 0) {
+                    const latLngs = ltv.path.map(p => [p[1], p[0]] as [number, number]);
+                    const polyline = L.polyline(latLngs, {
+                        color: color,
+                        weight: 8,
+                        opacity: 0.9,
+                    });
+                    polyline.bindPopup(popupContent);
+                    layerGroupRef.current!.addLayer(polyline);
+                }
+
                 count++;
             }
             setVisibleCount(count);
         });
-    }, [mapReady, filtered, t]);
+    }, [mapReady, filtered, t, showPoints]);
 
     const legendItems = [
         { label: tSpeed('critical'), color: '#ef4444' },
@@ -223,6 +238,10 @@ export default function LtvMap({ ltvs, maxSpeed, activeOnly }: Props) {
                 <label className={styles.toggleLabel}>
                     <input type="checkbox" checked={useORM} onChange={e => setUseORM(e.target.checked)} />
                     <span>{t('layer_ormap')}</span>
+                </label>
+                <label className={styles.toggleLabel}>
+                    <input type="checkbox" checked={showPoints} onChange={e => setShowPoints(e.target.checked)} />
+                    <span>{t('layer_points')}</span>
                 </label>
             </div>
 

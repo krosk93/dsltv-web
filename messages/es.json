@@ -102,6 +102,7 @@
         "sidebar_title": "LTV visibles",
         "layer_ormap": "OpenRailwayMap",
         "layer_osm": "OpenStreetMap",
+        "layer_points": "Puntos LTV",
         "disclaimer": "Nota: Las posiciones en el mapa son aproximadas. Para la geolocalización exacta se necesitan datos adicionales.",
         "popup_line": "Línea",
         "popup_stations": "Tramo",

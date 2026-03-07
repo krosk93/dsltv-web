@@ -19,6 +19,7 @@ export interface LTV {
   province?: string;
   designSpeed?: number;
   delaySeconds?: number;
+  path?: [number, number][];
 }
 
 export function formatDuration(seconds: number): string {

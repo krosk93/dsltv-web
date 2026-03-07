@@ -101,6 +101,7 @@
         "legend": "Speed Legend",
         "sidebar_title": "Visible LTV",
         "layer_ormap": "OpenRailwayMap",
+        "layer_points": "LTV Points",
         "disclaimer": "Note: Map positions are approximate. Additional data is needed for exact geolocation.",
         "popup_line": "Line",
         "popup_stations": "Area",
