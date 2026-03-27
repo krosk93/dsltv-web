@@ -60,7 +60,7 @@ export default async function LocaleLayout({ children, params }: Props) {
     const messages = await getMessages();
 
     return (
-        <html lang={locale}>
+        <html lang={locale} suppressHydrationWarning>
             <head>
                 <link rel="preconnect" href="https://fonts.googleapis.com" />
                 <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
@@ -69,7 +69,7 @@ export default async function LocaleLayout({ children, params }: Props) {
                     rel="stylesheet"
                 />
             </head>
-            <body style={{ visibility: 'hidden' }}>
+            <body>
                 <script dangerouslySetInnerHTML={{
                     __html: `
                     (function() {
@@ -82,7 +82,6 @@ export default async function LocaleLayout({ children, params }: Props) {
                                 resolved = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
                             }
                             document.documentElement.setAttribute('data-theme', resolved);
-                            document.body.style.visibility = 'visible';
                         } catch (e) {}
                     })();
                 ` }} />
