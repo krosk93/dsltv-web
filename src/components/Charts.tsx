@@ -5,7 +5,7 @@ import {
     BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer,
     PieChart, Pie, Cell, Legend, LineChart, Line, CartesianGrid, AreaChart, Area,
 } from 'recharts';
-import { getSpeedColor } from '@/lib/types';
+import { getReductionColor } from '@/lib/types';
 import type { Stats } from '@/lib/data';
 import ExportButton from './ExportButton';
 
@@ -75,7 +75,36 @@ export function ChartSpeedDist({ data }: { data: Stats['speedDistribution'] }) {
                     />
                     <Bar dataKey="count" radius={[4, 4, 0, 0]}>
                         {data.map((entry) => (
-                            <Cell key={entry.speed} fill={getSpeedColor(entry.speed)} fillOpacity={0.85} />
+                            <Cell key={entry.speed} fill="#6366f1" fillOpacity={0.85} />
+                        ))}
+                    </Bar>
+                </BarChart>
+            </ResponsiveContainer>
+        </ChartWrapper>
+    );
+}
+
+export function ChartReductionDist({ data }: { data: Stats['reductionDistribution'] }) {
+    const t = useTranslations('dashboard');
+    return (
+        <ChartWrapper title={t('chart_reduction')} filename="reduction_distribution" className="animate-fade-up-delay-1">
+            <ResponsiveContainer width="100%" height={220}>
+                <BarChart data={data} margin={{ left: -10, right: 0 }}>
+                    <XAxis
+                        dataKey="reduction"
+                        tick={{ fill: '#6b7280', fontSize: 11 }}
+                        axisLine={false} tickLine={false}
+                        tickFormatter={(v) => `${v}%`}
+                    />
+                    <YAxis tick={{ fill: '#6b7280', fontSize: 11 }} axisLine={false} tickLine={false} />
+                    <Tooltip
+                        contentStyle={TOOLTIP_STYLE}
+                        formatter={(val) => [val, t('count')]}
+                        labelFormatter={(l) => `${l}% – ${Number(l) + 9}% red.`}
+                    />
+                    <Bar dataKey="count" radius={[4, 4, 0, 0]}>
+                        {data.map((entry) => (
+                            <Cell key={entry.reduction} fill={getReductionColor(entry.reduction)} fillOpacity={0.85} />
                         ))}
                     </Bar>
                 </BarChart>
@@ -122,9 +151,12 @@ export function ChartTimeline({ data }: { data: Stats['timelineData'] }) {
                         contentStyle={TOOLTIP_STYLE}
                         labelFormatter={(v) => new Date(v).toISOString().slice(0, 10)}
                     />
-                    <Area type="monotone" dataKey="active" stroke="#8b5cf6" strokeWidth={2} fill="#8b5cf611" dot={false} name={t('chart_legend_active')} />
-                    <Area type="monotone" dataKey="resolved" stroke="#22c55e" strokeWidth={2} fill="none" dot={false} name={t('chart_legend_resolved')} />
-                    <Area type="monotone" dataKey="count" stroke="#06b6d4" strokeWidth={1.5} fill="none" dot={false} name={t('chart_legend_new')} />
+                    <Area type="monotone" dataKey="active_conv" stroke="#8b5cf6" strokeWidth={2} fill="#8b5cf611" dot={false} name={`${t('chart_legend_active')} (Conv)`} />
+                    <Area type="monotone" dataKey="active_av" stroke="#d946ef" strokeWidth={2} fill="#d946ef11" dot={false} name={`${t('chart_legend_active')} (AV)`} />
+                    <Area type="monotone" dataKey="resolved_conv" stroke="#22c55e" strokeWidth={2} fill="none" dot={false} name={`${t('chart_legend_resolved')} (Conv)`} />
+                    <Area type="monotone" dataKey="resolved_av" stroke="#84cc16" strokeWidth={2} fill="none" dot={false} name={`${t('chart_legend_resolved')} (AV)`} />
+                    <Area type="monotone" dataKey="count_conv" stroke="#06b6d4" strokeWidth={1.5} fill="none" dot={false} name={`${t('chart_legend_new')} (Conv)`} />
+                    <Area type="monotone" dataKey="count_av" stroke="#0ea5e9" strokeWidth={1.5} fill="none" dot={false} name={`${t('chart_legend_new')} (AV)`} />
                 </AreaChart>
             </ResponsiveContainer>
         </ChartWrapper>

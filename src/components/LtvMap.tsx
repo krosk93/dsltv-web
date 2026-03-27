@@ -2,13 +2,13 @@
 import { useEffect, useRef, useState, useMemo } from 'react';
 import { useTranslations } from 'next-intl';
 import type { FlatLTV } from '@/lib/types';
-import { getSpeedColor, formatDuration } from '@/lib/types';
+import { getReductionColor, formatDuration } from '@/lib/types';
 import ExportButton from './ExportButton';
 import styles from './LtvMap.module.css';
 
 interface Props {
     ltvs: FlatLTV[];
-    maxSpeed: number;
+    minReduction: number;
     activeOnly?: boolean;
 }
 
@@ -61,7 +61,7 @@ function estimateLatLng(ltv: FlatLTV): [number, number] | null {
     return [lat, lng];
 }
 
-export default function LtvMap({ ltvs, maxSpeed, activeOnly }: Props) {
+export default function LtvMap({ ltvs, minReduction, activeOnly }: Props) {
     const t = useTranslations('map');
     const tSpeed = useTranslations('speed');
     const containerRef = useRef<HTMLDivElement>(null);
@@ -75,10 +75,10 @@ export default function LtvMap({ ltvs, maxSpeed, activeOnly }: Props) {
     const ormLayerRef = useRef<import('leaflet').TileLayer | null>(null);
 
     const filtered = useMemo(() => {
-        let res = ltvs.filter(l => l.speedNum <= maxSpeed);
+        let res = ltvs.filter(l => l.reductionPercentage >= minReduction);
         if (activeOnly) res = res.filter(l => l.active);
         return res;
-    }, [ltvs, maxSpeed, activeOnly]);
+    }, [ltvs, minReduction, activeOnly]);
 
     // Initialize map once
     useEffect(() => {
@@ -156,8 +156,10 @@ export default function LtvMap({ ltvs, maxSpeed, activeOnly }: Props) {
 
                 if (!pos) continue;
 
-                const color = getSpeedColor(ltv.speedNum);
-                const radius = Math.max(5, Math.min(14, (200 - ltv.speedNum) / 14));
+                const color = getReductionColor(ltv.reductionPercentage);
+                // Radius: larger reduction = bigger radius. Wait, before it was based on 200 - speedNum.
+                // Let's base it on reductionPercentage: 0 -> 5, 100 -> 14
+                const radius = Math.max(5, Math.min(14, 5 + (ltv.reductionPercentage / 100) * 9));
 
                 const popupContent = `
           <div style="min-width:240px;font-family:'Inter',sans-serif">

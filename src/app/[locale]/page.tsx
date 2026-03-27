@@ -3,21 +3,23 @@ import { useEffect, useState, useMemo } from 'react';
 import { useTranslations } from 'next-intl';
 import Header from '@/components/Header';
 import KpiCards from '@/components/KpiCards';
-import { ChartSpeedDist, ChartReasons, ChartTimeline, ChartTracks, ChartLines, ChartStates } from '@/components/Charts';
+import { ChartSpeedDist, ChartReductionDist, ChartReasons, ChartTimeline, ChartTracks, ChartLines, ChartStates } from '@/components/Charts';
 import { computeStats, getLTVServerData } from '@/lib/data';
 import type { Stats } from '@/lib/data';
-import type { FlatLTV } from '@/lib/types';
+import type { FlatLTV, RailType } from '@/lib/types';
 import styles from './page.module.css';
 
 export default function DashboardPage() {
     const t = useTranslations('dashboard');
     const tStates = useTranslations('states');
+    const tRailType = useTranslations('rail_type');
     const [allLtvs, setAllLtvs] = useState<FlatLTV[]>([]);
     const [fullStats, setFullStats] = useState<Stats | null>(null);
     const [filteredStats, setFilteredStats] = useState<Stats | null>(null);
     const [stateFilteredStats, setStateFilteredStats] = useState<Stats | null>(null);
     const [activeOnly, setActiveOnly] = useState(true);
     const [selectedState, setSelectedState] = useState<string | null>(null);
+    const [selectedRailType, setSelectedRailType] = useState<RailType>('both');
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
@@ -36,15 +38,17 @@ export default function DashboardPage() {
 
         // State-only filter (no active toggle) → for the timeline chart
         const stateLtvs = selectedState ? allLtvs.filter(l => l.state === selectedState) : allLtvs;
-        setStateFilteredStats(computeStats(stateLtvs));
+        const typeLtvs = selectedRailType === 'both' ? stateLtvs : stateLtvs.filter(l => l.railType === selectedRailType);
+        
+        setStateFilteredStats(computeStats(typeLtvs));
 
-        // Full filter (state + active) → for KPIs and all other charts
-        let filteredLtvs = stateLtvs;
+        // Full filter (state + active + type) → for KPIs and all other charts
+        let filteredLtvs = typeLtvs;
         if (activeOnly) {
             filteredLtvs = filteredLtvs.filter(l => l.active);
         }
         setFilteredStats(computeStats(filteredLtvs));
-    }, [allLtvs, activeOnly, selectedState]);
+    }, [allLtvs, activeOnly, selectedState, selectedRailType]);
 
     // All distinct states from the full dataset
     const allStates = useMemo(() => {
@@ -68,6 +72,31 @@ export default function DashboardPage() {
                         <p className={styles.subheading}>{t('subtitle')}</p>
                     </div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap', justifyContent: 'flex-end' }}>
+                        {/* RailType filter */}
+                        <div className="glass-card" style={{ padding: '8px 14px', display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
+                            <label htmlFor="railtype-filter" style={{ fontSize: '0.82rem', fontWeight: 600, color: 'var(--text-muted)', whiteSpace: 'nowrap' }}>
+                                {tRailType('label')}:
+                            </label>
+                            <select
+                                id="railtype-filter"
+                                value={selectedRailType}
+                                onChange={e => setSelectedRailType(e.target.value as RailType)}
+                                style={{
+                                    background: 'transparent',
+                                    border: 'none',
+                                    color: 'var(--text)',
+                                    fontSize: '0.85rem',
+                                    fontWeight: 600,
+                                    cursor: 'pointer',
+                                    outline: 'none',
+                                    accentColor: '#6366f1',
+                                }}
+                            >
+                                <option value="both">{tRailType('all')}</option>
+                                <option value="conventional">{tRailType('conventional')}</option>
+                                <option value="high-speed">{tRailType('high_speed')}</option>
+                            </select>
+                        </div>
                         {/* State filter */}
                         <div className="glass-card" style={{ padding: '8px 14px', display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
                             <label htmlFor="state-filter" style={{ fontSize: '0.82rem', fontWeight: 600, color: 'var(--text-muted)', whiteSpace: 'nowrap' }}>
@@ -150,6 +179,7 @@ export default function DashboardPage() {
                                     selectedState={selectedState}
                                 />
                             </div>
+                            <ChartReductionDist data={filteredStats.reductionDistribution} />
                             <ChartSpeedDist data={filteredStats.speedDistribution} />
                             <div className={styles.spanFull}>
                                 <ChartLines data={filteredStats.lineData} />

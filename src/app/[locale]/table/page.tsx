@@ -4,8 +4,8 @@ import { useTranslations } from 'next-intl';
 import Header from '@/components/Header';
 import SpeedBadge from '@/components/SpeedBadge';
 import { getAllLTVs } from '@/lib/data';
-import type { FlatLTV } from '@/lib/types';
-import { formatDuration } from '@/lib/types';
+import type { FlatLTV, RailType } from '@/lib/types';
+import { formatDuration, getReductionColor } from '@/lib/types';
 import { RotateCcw, ChevronUp, ChevronDown, Search } from 'lucide-react';
 import styles from './table.module.css';
 
@@ -17,16 +17,17 @@ const PAGE_SIZE = 50;
 export default function TablePage() {
     const t = useTranslations();
     const tStates = useTranslations('states');
+    const tRailType = useTranslations('rail_type');
     const [all, setAll] = useState<FlatLTV[]>([]);
     const [loading, setLoading] = useState(true);
 
-    // Filters
     const [selectedLine, setSelectedLine] = useState('');
-    const [maxSpeed, setMaxSpeed] = useState(300);
+    const [minReduction, setMinReduction] = useState(0);
     const [reasonSearch, setReasonSearch] = useState('');
     const [selectedTrack, setSelectedTrack] = useState('');
     const [selectedState, setSelectedState] = useState('');
     const [selectedProvince, setSelectedProvince] = useState('');
+    const [selectedRailType, setSelectedRailType] = useState<RailType>('both');
     const [activeOnly, setActiveOnly] = useState(true);
     const [page, setPage] = useState(0);
     const [sortKey, setSortKey] = useState<SortKey>('firstAppearanceDate');
@@ -58,11 +59,12 @@ export default function TablePage() {
     const filtered = useMemo(() => {
         let res = all;
         if (selectedLine) res = res.filter(l => l.line === selectedLine);
-        if (maxSpeed < 300) res = res.filter(l => l.speedNum <= maxSpeed);
+        if (minReduction > 0) res = res.filter(l => l.reductionPercentage >= minReduction);
         if (reasonSearch) res = res.filter(l => l.reason.toLowerCase().includes(reasonSearch.toLowerCase()));
         if (selectedTrack) res = res.filter(l => l.track === selectedTrack);
         if (selectedState) res = res.filter(l => l.state === selectedState);
         if (selectedProvince) res = res.filter(l => l.province === selectedProvince);
+        if (selectedRailType !== 'both') res = res.filter(l => l.railType === selectedRailType);
         if (activeOnly) res = res.filter(l => l.active);
 
         res = [...res].sort((a, b) => {
@@ -72,7 +74,7 @@ export default function TablePage() {
             return sortDir === 'asc' ? cmp : -cmp;
         });
         return res;
-    }, [all, selectedLine, maxSpeed, reasonSearch, selectedTrack, selectedState, selectedProvince, activeOnly, sortKey, sortDir]);
+    }, [all, selectedLine, minReduction, reasonSearch, selectedTrack, selectedState, selectedProvince, selectedRailType, activeOnly, sortKey, sortDir]);
 
     const paginated = useMemo(() => filtered.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE), [filtered, page]);
     const totalPages = Math.ceil(filtered.length / PAGE_SIZE);
@@ -84,8 +86,9 @@ export default function TablePage() {
     }, [sortKey]);
 
     const reset = () => {
-        setSelectedLine(''); setMaxSpeed(300); setReasonSearch('');
+        setSelectedLine(''); setMinReduction(0); setReasonSearch('');
         setSelectedTrack(''); setSelectedState(''); setSelectedProvince('');
+        setSelectedRailType('both');
         setActiveOnly(true); setPage(0);
     };
 
@@ -139,6 +142,16 @@ export default function TablePage() {
                             </select>
                         </div>
 
+                        {/* RailType filter */}
+                        <div className={styles.filterGroup}>
+                            <label className={styles.filterLabel}>{tRailType('label')}</label>
+                            <select className="control" value={selectedRailType} onChange={e => { setSelectedRailType(e.target.value as RailType); setPage(0); }}>
+                                <option value="both">{tRailType('all')}</option>
+                                <option value="conventional">{tRailType('conventional')}</option>
+                                <option value="high-speed">{tRailType('high_speed')}</option>
+                            </select>
+                        </div>
+
                         {/* State filter */}
                         <div className={styles.filterGroup}>
                             <label className={styles.filterLabel}>{t('dashboard.filter_state_label')}</label>
@@ -158,9 +171,9 @@ export default function TablePage() {
                         </div>
 
                         <div className={styles.filterGroup}>
-                            <label className={styles.filterLabel}>{t('table.filter_speed')}: <strong style={{ color: '#818cf8' }}>{maxSpeed === 300 ? '∞' : maxSpeed} km/h</strong></label>
-                            <input type="range" min={10} max={300} step={10} value={maxSpeed}
-                                onChange={e => { setMaxSpeed(Number(e.target.value)); setPage(0); }}
+                            <label className={styles.filterLabel}>{t('dashboard.filter_reduction')}: <strong style={{ color: '#818cf8' }}>{minReduction}%</strong></label>
+                            <input type="range" min={0} max={100} step={5} value={minReduction}
+                                onChange={e => { setMinReduction(Number(e.target.value)); setPage(0); }}
                                 className={styles.slider} />
                         </div>
 
@@ -224,6 +237,9 @@ export default function TablePage() {
                                         <th style={thStyle('speedNum')} onClick={() => handleSort('speedNum')}>
                                             {t('table.col_speed')} <SortIcon k="speedNum" />
                                         </th>
+                                        <th style={thStyle('reductionPercentage')} onClick={() => handleSort('reductionPercentage')}>
+                                            {t('table.col_reduction')} <SortIcon k="reductionPercentage" />
+                                        </th>
                                         <th style={thStyle('delaySeconds')} onClick={() => handleSort('delaySeconds')}>
                                             {t('table.col_delay')} <SortIcon k="delaySeconds" />
                                         </th>
@@ -259,7 +275,10 @@ export default function TablePage() {
                                             <td className="mono" style={{ fontSize: '0.8rem' }}>{ltv.startKm}</td>
                                             <td className="mono" style={{ fontSize: '0.8rem' }}>{ltv.kmLength.toFixed(3)} km</td>
                                             <td className="mono" style={{ fontSize: '0.8rem', color: '#9ca3af' }}>{ltv.designSpeed ? `${ltv.designSpeed} km/h` : '—'}</td>
-                                            <td><SpeedBadge speed={ltv.speedNum} /></td>
+                                            <td><SpeedBadge speed={ltv.speedNum} reduction={ltv.reductionPercentage} /></td>
+                                            <td className="mono" style={{ fontSize: '0.8rem', color: getReductionColor(ltv.reductionPercentage), fontWeight: 600 }}>
+                                                {ltv.designSpeed ? `-${ltv.reductionPercentage.toFixed(1)}%` : '—'}
+                                            </td>
                                             <td className="mono" style={{ fontSize: '0.8rem', color: '#f97316', fontWeight: 600 }}>{ltv.delaySeconds ? formatDuration(ltv.delaySeconds) : '—'}</td>
                                             <td style={{ maxWidth: 280, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}
                                                 title={ltv.reason}>{ltv.reason}</td>

@@ -34,35 +34,39 @@ export interface LTVData {
   [line: string]: LTV[];
 }
 
+export type RailType = 'conventional' | 'high-speed' | 'both';
+
 export interface FlatLTV extends LTV {
   line: string;
   speedNum: number;
   kmLength: number;
   active: boolean;
+  railType: RailType;
+  reductionPercentage: number;
 }
 
-export type SpeedCategory = 'critical' | 'low' | 'medium' | 'high' | 'reduced';
+export type ReductionCategory = 'critical' | 'high' | 'medium' | 'low' | 'reduced';
 
-export function getSpeedCategory(speed: number): SpeedCategory {
-  if (speed <= 30) return 'critical';
-  if (speed <= 60) return 'low';
-  if (speed <= 80) return 'medium';
-  if (speed <= 120) return 'high';
+export function getReductionCategory(reduction: number): ReductionCategory {
+  if (reduction > 70) return 'critical';
+  if (reduction > 50) return 'high';
+  if (reduction > 30) return 'medium';
+  if (reduction > 10) return 'low';
   return 'reduced';
 }
 
-export function getSpeedColor(speed: number): string {
-  if (speed <= 30) return '#ef4444';
-  if (speed <= 60) return '#f97316';
-  if (speed <= 80) return '#eab308';
-  if (speed <= 120) return '#22c55e';
+export function getReductionColor(reduction: number): string {
+  if (reduction > 70) return '#ef4444';
+  if (reduction > 50) return '#f97316';
+  if (reduction > 30) return '#eab308';
+  if (reduction > 10) return '#22c55e';
   return '#3b82f6';
 }
 
-export function getSpeedBgClass(speed: number): string {
-  if (speed <= 30) return 'speed-critical';
-  if (speed <= 60) return 'speed-low';
-  if (speed <= 80) return 'speed-medium';
-  if (speed <= 120) return 'speed-high';
+export function getReductionBgClass(reduction: number): string {
+  if (reduction > 70) return 'speed-critical';
+  if (reduction > 50) return 'speed-low';
+  if (reduction > 30) return 'speed-medium';
+  if (reduction > 10) return 'speed-high';
   return 'speed-reduced';
 }

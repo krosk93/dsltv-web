@@ -18,7 +18,8 @@
         "kpi_avg_speed": "Velocitat mitjana",
         "kpi_avg_delay": "Retard mitjà",
         "kpi_total_km": "Km afectats totals",
-        "chart_speed": "Distribució de velocitats",
+        "chart_speed": "Velocitat absoluta",
+        "chart_reduction": "Reducció de velocitat (%)",
         "chart_reasons": "Principals motius",
         "chart_legend_resolved": "Resoltes",
         "chart_legend_active": "Actives",
@@ -93,7 +94,7 @@
     "map": {
         "title": "Mapa de LTV",
         "subtitle": "Geolocalització aproximada basada en dades de línia i PK",
-        "filter_speed": "Velocitat màxima",
+        "filter_speed": "Reducció de velocitat",
         "filter_active": "Només actives",
         "filter_state": "Totes les comunitats",
         "filter_state_label": "Comunitat Autònoma",
@@ -116,11 +117,11 @@
         "popup_stations": "Tram"
     },
     "speed": {
-        "critical": "Crític (≤30)",
-        "low": "Baix (31–60)",
-        "medium": "Moderat (61–80)",
-        "high": "Alt (81–120)",
-        "reduced": "Reduïda (>120)"
+        "critical": "Crític (>70%)",
+        "high": "Alt (50–70%)",
+        "medium": "Moderat (30–50%)",
+        "low": "Baix (10–30%)",
+        "reduced": "Mínim (≤10%)"
     },
     "lang": {
         "ca": "Català",
@@ -131,5 +132,11 @@
         "title": "Atenció: Plataforma Col·laborativa",
         "message": "Aquesta és una plataforma col·laborativa i no es garanteix la validesa de les dades. Qualsevol pot contribuir a través del bot de Telegram @dsltv_bot. Els fitxers enviats no es conserven al servidor.",
         "button": "D'acord"
+    },
+    "rail_type": {
+        "all": "Totes les xarxes",
+        "conventional": "Xarxa Convencional",
+        "high_speed": "Alta Velocitat",
+        "label": "Xarxa ferroviària"
     }
 }

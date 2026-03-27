@@ -2,7 +2,6 @@
 import { useRef } from 'react';
 import { useTranslations } from 'next-intl';
 import type { Stats } from '@/lib/data';
-import { getSpeedColor } from '@/lib/types';
 import { formatDuration } from '@/lib/types';
 import { AlertTriangle, Activity, TrendingUp, GitFork, Zap, Route, Clock } from 'lucide-react';
 import ExportButton from './ExportButton';
@@ -52,7 +51,7 @@ export default function KpiCards({ stats }: Props) {
             value: stats.avgSpeed.toLocaleString(),
             sub: t('kmh'),
             icon: <TrendingUp size={22} />,
-            color: getSpeedColor(stats.avgSpeed),
+            color: '#3b82f6',
             delay: 4,
         },
         {

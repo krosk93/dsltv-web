@@ -5,7 +5,7 @@ import dynamic from 'next/dynamic';
 import Header from '@/components/Header';
 import SpeedBadge from '@/components/SpeedBadge';
 import { getAllLTVs } from '@/lib/data';
-import type { FlatLTV } from '@/lib/types';
+import type { FlatLTV, RailType } from '@/lib/types';
 import styles from './map.module.css';
 
 // Dynamically import Leaflet map (no SSR)
@@ -15,11 +15,13 @@ export default function MapPage() {
     const t = useTranslations('map');
     const tSpeed = useTranslations('speed');
     const tStates = useTranslations('states');
+    const tRailType = useTranslations('rail_type');
     const [all, setAll] = useState<FlatLTV[]>([]);
     const [loading, setLoading] = useState(true);
-    const [maxSpeed, setMaxSpeed] = useState(300);
+    const [minReduction, setMinReduction] = useState(0);
     const [activeOnly, setActiveOnly] = useState(true);
     const [selectedState, setSelectedState] = useState<string | null>(null);
+    const [selectedRailType, setSelectedRailType] = useState<RailType>('both');
 
     useEffect(() => {
         getAllLTVs().then((data) => { setAll(data); setLoading(false); });
@@ -36,18 +38,19 @@ export default function MapPage() {
     };
 
     const filtered = useMemo(() => {
-        let res = all.filter(l => l.speedNum <= maxSpeed);
+        let res = all.filter(l => l.reductionPercentage >= minReduction);
         if (activeOnly) res = res.filter(l => l.active);
         if (selectedState) res = res.filter(l => l.state === selectedState);
+        if (selectedRailType !== 'both') res = res.filter(l => l.railType === selectedRailType);
         return res;
-    }, [all, maxSpeed, activeOnly, selectedState]);
+    }, [all, minReduction, activeOnly, selectedState, selectedRailType]);
 
-    const speedBuckets = [
-        { label: tSpeed('critical'), max: 30, color: '#ef4444' },
-        { label: tSpeed('low'), max: 60, color: '#f97316' },
-        { label: tSpeed('medium'), max: 80, color: '#eab308' },
-        { label: tSpeed('high'), max: 120, color: '#22c55e' },
-        { label: tSpeed('reduced'), max: 300, color: '#3b82f6' },
+    const reductionBuckets = [
+        { label: tSpeed('critical'), min: 70, color: '#ef4444' },
+        { label: tSpeed('high'), min: 50, color: '#f97316' },
+        { label: tSpeed('medium'), min: 30, color: '#eab308' },
+        { label: tSpeed('low'), min: 10, color: '#22c55e' },
+        { label: tSpeed('reduced'), min: 0, color: '#3b82f6' },
     ];
 
     return (
@@ -66,6 +69,31 @@ export default function MapPage() {
                 {/* Filter row */}
                 <div className={`glass-card ${styles.filterBar} animate-fade-up-delay-1`}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 8, paddingRight: 16, borderRight: '1px solid rgba(255,255,255,0.1)' }}>
+                        <label htmlFor="railtype-filter" style={{ fontSize: '0.82rem', fontWeight: 600, color: '#6b7280', whiteSpace: 'nowrap', textTransform: 'uppercase' }}>
+                            {tRailType('label')}:
+                        </label>
+                        <select
+                            id="railtype-filter"
+                            value={selectedRailType}
+                            onChange={e => setSelectedRailType(e.target.value as RailType)}
+                            style={{
+                                background: 'transparent',
+                                border: 'none',
+                                color: 'var(--text)',
+                                fontSize: '0.85rem',
+                                fontWeight: 700,
+                                cursor: 'pointer',
+                                outline: 'none',
+                                accentColor: '#6366f1',
+                            }}
+                        >
+                            <option value="both">{tRailType('all')}</option>
+                            <option value="conventional">{tRailType('conventional')}</option>
+                            <option value="high-speed">{tRailType('high_speed')}</option>
+                        </select>
+                    </div>
+
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, paddingLeft: 16, paddingRight: 16, borderRight: '1px solid rgba(255,255,255,0.1)' }}>
                         <label htmlFor="state-filter" style={{ fontSize: '0.82rem', fontWeight: 600, color: '#6b7280', whiteSpace: 'nowrap', textTransform: 'uppercase' }}>
                             {t('filter_state_label')}:
                         </label>
@@ -96,16 +124,16 @@ export default function MapPage() {
                             {t('filter_speed')}
                         </span>
                         <div className={styles.buckets}>
-                            {speedBuckets.map(b => (
+                            {reductionBuckets.map(b => (
                                 <button
-                                    key={b.max}
+                                    key={b.min}
                                     className={styles.bucketBtn}
                                     style={{
-                                        background: maxSpeed === b.max ? `${b.color}22` : undefined,
-                                        borderColor: maxSpeed === b.max ? `${b.color}66` : undefined,
-                                        color: maxSpeed === b.max ? b.color : '#6b7280',
+                                        background: minReduction === b.min ? `${b.color}22` : undefined,
+                                        borderColor: minReduction === b.min ? `${b.color}66` : undefined,
+                                        color: minReduction === b.min ? b.color : '#6b7280',
                                     }}
-                                    onClick={() => setMaxSpeed(maxSpeed === b.max ? 300 : b.max)}
+                                    onClick={() => setMinReduction(minReduction === b.min ? 0 : b.min)}
                                 >
                                     <span className={styles.dot} style={{ background: b.color }} />
                                     {b.label}
@@ -127,13 +155,16 @@ export default function MapPage() {
                     </div>
 
                     <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 12 }}>
+                        <span style={{ color: '#6b7280', fontSize: '0.82rem' }}>Min %:</span>
                         <input
-                            type="range" min={10} max={300} step={10} value={maxSpeed}
-                            onChange={e => setMaxSpeed(Number(e.target.value))}
+                            type="range" min={0} max={100} step={5} value={minReduction}
+                            onChange={e => setMinReduction(Number(e.target.value))}
                             style={{ width: 140, accentColor: '#6366f1' }}
                         />
-                        <SpeedBadge speed={maxSpeed === 300 ? 999 : maxSpeed} />
-                        <span style={{ color: '#6b7280', fontSize: '0.8rem' }}>
+                        <span style={{ color: '#6b7280', fontSize: '0.9rem', fontWeight: 600, width: 40, textAlign: 'right' }}>
+                            {minReduction}%
+                        </span>
+                        <span style={{ color: '#6b7280', fontSize: '0.8rem', marginLeft: 12 }}>
                             {filtered.length} / {all.length} LTV
                         </span>
                     </div>
@@ -146,7 +177,7 @@ export default function MapPage() {
                             <div className={styles.spinner} />
                         </div>
                     ) : (
-                        <LtvMap ltvs={filtered} maxSpeed={maxSpeed} activeOnly={activeOnly} />
+                        <LtvMap ltvs={filtered} minReduction={minReduction} activeOnly={activeOnly} />
                     )}
                 </div>
             </main>

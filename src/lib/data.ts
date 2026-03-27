@@ -1,4 +1,4 @@
-import { LTVData, FlatLTV, getSpeedCategory } from './types';
+import { LTVData, FlatLTV, getReductionCategory } from './types';
 
 let cachedRaw: FlatLTV[] | null = null;
 let cachedStats: Stats | null = null;
@@ -39,8 +39,18 @@ export interface Stats {
     csvCount: number;
     totalKm: number;
     speedDistribution: { speed: number; count: number }[];
+    reductionDistribution: { reduction: number; count: number }[];
     reasonDistribution: { reason: string; count: number }[];
-    timelineData: { date: number; dateStr: string; count: number; resolved: number; active: number }[];
+    timelineData: {
+        date: number;
+        dateStr: string;
+        count_conv: number;
+        resolved_conv: number;
+        active_conv: number;
+        count_av: number;
+        resolved_av: number;
+        active_av: number;
+    }[];
     trackDistribution: { track: string; count: number }[];
     lineData: { line: string; count: number; avgSpeed: number }[];
     stateDistribution: { state: string; count: number }[];
@@ -55,7 +65,7 @@ export function computeStats(ltvs: FlatLTV[]): Stats {
     const avgSpeed = speeds.length ? Math.round(speeds.reduce((a, b) => a + b, 0) / speeds.length) : 0;
     const minSpeed = speeds.length ? Math.min(...speeds) : 0;
     const maxSpeed = speeds.length ? Math.max(...speeds) : 0;
-    const criticalCount = ltvs.filter(l => getSpeedCategory(l.speedNum) === 'critical').length;
+    const criticalCount = ltvs.filter(l => getReductionCategory(l.reductionPercentage) === 'critical').length;
     const csvCount = ltvs.filter(l => l.csv).length;
     const totalKm = ltvs.reduce((a, l) => a + l.kmLength, 0);
     const avgDelay = ltvs.length ? ltvs.reduce((a, l) => a + (l.delaySeconds || 0), 0) / ltvs.length : 0;
@@ -69,6 +79,16 @@ export function computeStats(ltvs: FlatLTV[]): Stats {
     const speedDistribution = Object.entries(speedBuckets)
         .map(([speed, count]) => ({ speed: parseInt(speed), count }))
         .sort((a, b) => a.speed - b.speed);
+
+    // Reduction buckets
+    const reductionBuckets: Record<number, number> = {};
+    for (const ltv of ltvs) {
+        const bucket = Math.floor(ltv.reductionPercentage / 10) * 10;
+        reductionBuckets[bucket] = (reductionBuckets[bucket] || 0) + 1;
+    }
+    const reductionDistribution = Object.entries(reductionBuckets)
+        .map(([reduction, count]) => ({ reduction: parseInt(reduction), count }))
+        .sort((a, b) => a.reduction - b.reduction);
 
     // Reason distribution
     const reasonMap: Record<string, number> = {};
@@ -86,24 +106,34 @@ export function computeStats(ltvs: FlatLTV[]): Stats {
     // Skip the first date since LTVs may be older than that date
     const dates = allDates.slice(1);
     const timelineData = dates.map((date, idx) => {
-        const newCount = ltvs.filter(l => l.firstAppearanceDate === date).length;
-        const activeAtDate = ltvs.filter(l => l.firstAppearanceDate <= date && l.lastSeen >= date).length;
+        // Compute for Conventional
+        const newCountConv = ltvs.filter(l => l.railType === 'conventional' && l.firstAppearanceDate === date).length;
+        const activeAtDateConv = ltvs.filter(l => l.railType === 'conventional' && l.firstAppearanceDate <= date && l.lastSeen >= date).length;
+        let resolvedCountConv = 0;
 
-        let resolvedCount = 0;
+        // Compute for High-Speed
+        const newCountAv = ltvs.filter(l => l.railType === 'high-speed' && l.firstAppearanceDate === date).length;
+        const activeAtDateAv = ltvs.filter(l => l.railType === 'high-speed' && l.firstAppearanceDate <= date && l.lastSeen >= date).length;
+        let resolvedCountAv = 0;
+
         // Search in the original allDates to correctly calculate resolution since last snapshot
         const dateIdxInAll = allDates.indexOf(date);
         if (dateIdxInAll > 0) {
             const prevDate = allDates[dateIdxInAll - 1];
-            resolvedCount = ltvs.filter(l => l.firstAppearanceDate <= prevDate && l.lastSeen === prevDate).length;
+            resolvedCountConv = ltvs.filter(l => l.railType === 'conventional' && l.firstAppearanceDate <= prevDate && l.lastSeen === prevDate).length;
+            resolvedCountAv = ltvs.filter(l => l.railType === 'high-speed' && l.firstAppearanceDate <= prevDate && l.lastSeen === prevDate).length;
         }
 
         // Return timestamp for proportional graphing
         return {
             date: new Date(date).getTime(),
             dateStr: date,
-            count: newCount,
-            resolved: resolvedCount,
-            active: activeAtDate
+            count_conv: newCountConv,
+            resolved_conv: resolvedCountConv,
+            active_conv: activeAtDateConv,
+            count_av: newCountAv,
+            resolved_av: resolvedCountAv,
+            active_av: activeAtDateAv
         };
     });
 
@@ -157,7 +187,7 @@ export function computeStats(ltvs: FlatLTV[]): Stats {
     return {
         total, activeCount, lines, avgSpeed, avgDelay, minSpeed, maxSpeed,
         criticalCount, csvCount, totalKm,
-        speedDistribution, reasonDistribution,
+        speedDistribution, reductionDistribution, reasonDistribution,
         timelineData, trackDistribution, lineData,
         stateDistribution, provinceDistribution,
     };

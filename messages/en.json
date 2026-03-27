@@ -18,7 +18,8 @@
         "kpi_avg_speed": "Average Speed",
         "kpi_avg_delay": "Average Delay",
         "kpi_total_km": "Total km affected",
-        "chart_speed": "Speed Distribution",
+        "chart_speed": "Absolute Speed",
+        "chart_reduction": "Speed Reduction (%)",
         "chart_reasons": "Main Reasons",
         "chart_legend_resolved": "Resolved",
         "chart_legend_active": "Active",
@@ -93,7 +94,7 @@
     "map": {
         "title": "LTV Map",
         "subtitle": "Approximate geolocation based on line and PK data",
-        "filter_speed": "Maximum speed",
+        "filter_speed": "Min. speed reduction",
         "filter_active": "Show active only",
         "filter_state": "All communities",
         "filter_state_label": "Autonomous Community",
@@ -115,11 +116,11 @@
         "popup_comment": "Comment"
     },
     "speed": {
-        "critical": "Critical (≤30)",
-        "low": "Low (31–60)",
-        "medium": "Moderate (61–80)",
-        "high": "High (81–120)",
-        "reduced": "Reduced (>120)"
+        "critical": "Critical (>70%)",
+        "high": "High (50–70%)",
+        "medium": "Moderate (30–50%)",
+        "low": "Low (10–30%)",
+        "reduced": "Minimal (≤10%)"
     },
     "lang": {
         "ca": "Català",
@@ -130,5 +131,11 @@
         "title": "Attention: Collaborative Platform",
         "message": "This is a collaborative platform and data validity is not guaranteed. Anyone can contribute through the @dsltv_bot Telegram bot. Sent files are not stored on the server.",
         "button": "Got it"
+    },
+    "rail_type": {
+        "all": "All rail types",
+        "conventional": "Conventional Rail",
+        "high_speed": "High Speed Rail",
+        "label": "Rail Type"
     }
 }
