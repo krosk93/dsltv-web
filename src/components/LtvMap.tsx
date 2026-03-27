@@ -219,9 +219,9 @@ export default function LtvMap({ ltvs, minReduction, activeOnly }: Props) {
 
     const legendItems = [
         { label: tSpeed('critical'), color: '#ef4444' },
-        { label: tSpeed('low'), color: '#f97316' },
-        { label: tSpeed('medium'), color: '#eab308' },
         { label: tSpeed('high'), color: '#22c55e' },
+        { label: tSpeed('medium'), color: '#eab308' },
+        { label: tSpeed('low'), color: '#f97316' },
         { label: tSpeed('reduced'), color: '#3b82f6' },
     ];
 
