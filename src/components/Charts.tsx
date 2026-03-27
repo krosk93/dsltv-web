@@ -151,12 +151,12 @@ export function ChartTimeline({ data }: { data: Stats['timelineData'] }) {
                         contentStyle={TOOLTIP_STYLE}
                         labelFormatter={(v) => new Date(v).toISOString().slice(0, 10)}
                     />
-                    <Area type="monotone" dataKey="active_conv" stroke="#8b5cf6" strokeWidth={2} fill="#8b5cf611" dot={false} name={`${t('chart_legend_active')} (Conv)`} />
-                    <Area type="monotone" dataKey="active_av" stroke="#d946ef" strokeWidth={2} fill="#d946ef11" dot={false} name={`${t('chart_legend_active')} (AV)`} />
-                    <Area type="monotone" dataKey="resolved_conv" stroke="#22c55e" strokeWidth={2} fill="none" dot={false} name={`${t('chart_legend_resolved')} (Conv)`} />
-                    <Area type="monotone" dataKey="resolved_av" stroke="#84cc16" strokeWidth={2} fill="none" dot={false} name={`${t('chart_legend_resolved')} (AV)`} />
-                    <Area type="monotone" dataKey="count_conv" stroke="#06b6d4" strokeWidth={1.5} fill="none" dot={false} name={`${t('chart_legend_new')} (Conv)`} />
-                    <Area type="monotone" dataKey="count_av" stroke="#0ea5e9" strokeWidth={1.5} fill="none" dot={false} name={`${t('chart_legend_new')} (AV)`} />
+                    <Area type="monotone" dataKey="active_conv" connectNulls stroke="#8b5cf6" strokeWidth={2} fill="#8b5cf611" dot={false} name={`${t('chart_legend_active')} (Conv)`} />
+                    <Area type="monotone" dataKey="active_av" connectNulls stroke="#d946ef" strokeWidth={2} fill="#d946ef11" dot={false} name={`${t('chart_legend_active')} (AV)`} />
+                    <Area type="monotone" dataKey="resolved_conv" connectNulls stroke="#22c55e" strokeWidth={2} fill="none" dot={false} name={`${t('chart_legend_resolved')} (Conv)`} />
+                    <Area type="monotone" dataKey="resolved_av" connectNulls stroke="#84cc16" strokeWidth={2} fill="none" dot={false} name={`${t('chart_legend_resolved')} (AV)`} />
+                    <Area type="monotone" dataKey="count_conv" connectNulls stroke="#06b6d4" strokeWidth={1.5} fill="none" dot={false} name={`${t('chart_legend_new')} (Conv)`} />
+                    <Area type="monotone" dataKey="count_av" connectNulls stroke="#0ea5e9" strokeWidth={1.5} fill="none" dot={false} name={`${t('chart_legend_new')} (AV)`} />
                 </AreaChart>
             </ResponsiveContainer>
         </ChartWrapper>

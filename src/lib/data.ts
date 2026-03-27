@@ -44,12 +44,12 @@ export interface Stats {
     timelineData: {
         date: number;
         dateStr: string;
-        count_conv: number;
-        resolved_conv: number;
-        active_conv: number;
-        count_av: number;
-        resolved_av: number;
-        active_av: number;
+        count_conv: number | null;
+        resolved_conv: number | null;
+        active_conv: number | null;
+        count_av: number | null;
+        resolved_av: number | null;
+        active_av: number | null;
     }[];
     trackDistribution: { track: string; count: number }[];
     lineData: { line: string; count: number; avgSpeed: number }[];
@@ -103,25 +103,52 @@ export function computeStats(ltvs: FlatLTV[]): Stats {
 
     // Timeline
     const allDates = Array.from(new Set(ltvs.map(l => l.firstAppearanceDate).filter(Boolean))).sort();
+    
+    // Create independent snapshot sets
+    const convFeatures = ltvs.filter(l => l.railType === 'conventional');
+    const avFeatures = ltvs.filter(l => l.railType === 'high-speed');
+    
+    const convDatesList = Array.from(new Set(convFeatures.flatMap(l => [l.firstAppearanceDate, l.lastSeen]).filter(Boolean))).sort();
+    const avDatesList = Array.from(new Set(avFeatures.flatMap(l => [l.firstAppearanceDate, l.lastSeen]).filter(Boolean))).sort();
+
     // Skip the first date since LTVs may be older than that date
     const dates = allDates.slice(1);
-    const timelineData = dates.map((date, idx) => {
+    const timelineData = dates.map((date) => {
+        const hasConv = convDatesList.includes(date);
+        const hasAv = avDatesList.includes(date);
+
         // Compute for Conventional
-        const newCountConv = ltvs.filter(l => l.railType === 'conventional' && l.firstAppearanceDate === date).length;
-        const activeAtDateConv = ltvs.filter(l => l.railType === 'conventional' && l.firstAppearanceDate <= date && l.lastSeen >= date).length;
-        let resolvedCountConv = 0;
+        let newCountConv: number | null = null;
+        let activeAtDateConv: number | null = null;
+        let resolvedCountConv: number | null = null;
+
+        if (hasConv) {
+            newCountConv = convFeatures.filter(l => l.firstAppearanceDate === date).length;
+            activeAtDateConv = convFeatures.filter(l => l.firstAppearanceDate <= date && l.lastSeen >= date).length;
+            const idx = convDatesList.indexOf(date);
+            if (idx > 0) {
+                const prevDate = convDatesList[idx - 1];
+                resolvedCountConv = convFeatures.filter(l => l.firstAppearanceDate <= prevDate && l.lastSeen === prevDate).length;
+            } else {
+                resolvedCountConv = 0;
+            }
+        }
 
         // Compute for High-Speed
-        const newCountAv = ltvs.filter(l => l.railType === 'high-speed' && l.firstAppearanceDate === date).length;
-        const activeAtDateAv = ltvs.filter(l => l.railType === 'high-speed' && l.firstAppearanceDate <= date && l.lastSeen >= date).length;
-        let resolvedCountAv = 0;
+        let newCountAv: number | null = null;
+        let activeAtDateAv: number | null = null;
+        let resolvedCountAv: number | null = null;
 
-        // Search in the original allDates to correctly calculate resolution since last snapshot
-        const dateIdxInAll = allDates.indexOf(date);
-        if (dateIdxInAll > 0) {
-            const prevDate = allDates[dateIdxInAll - 1];
-            resolvedCountConv = ltvs.filter(l => l.railType === 'conventional' && l.firstAppearanceDate <= prevDate && l.lastSeen === prevDate).length;
-            resolvedCountAv = ltvs.filter(l => l.railType === 'high-speed' && l.firstAppearanceDate <= prevDate && l.lastSeen === prevDate).length;
+        if (hasAv) {
+            newCountAv = avFeatures.filter(l => l.firstAppearanceDate === date).length;
+            activeAtDateAv = avFeatures.filter(l => l.firstAppearanceDate <= date && l.lastSeen >= date).length;
+            const idx = avDatesList.indexOf(date);
+            if (idx > 0) {
+                const prevDate = avDatesList[idx - 1];
+                resolvedCountAv = avFeatures.filter(l => l.firstAppearanceDate <= prevDate && l.lastSeen === prevDate).length;
+            } else {
+                resolvedCountAv = 0;
+            }
         }
 
         // Return timestamp for proportional graphing
